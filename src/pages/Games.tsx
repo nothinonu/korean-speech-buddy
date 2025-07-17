@@ -379,6 +379,50 @@ const Games = () => {
     }));
   };
 
+  const handleMatchRequest = async (gameId: string) => {
+    if (!user) {
+      toast({
+        title: "로그인이 필요합니다",
+        description: "매칭을 요청하려면 먼저 로그인해주세요.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('game_matches')
+        .insert({
+          game_id: gameId,
+          user_id: user.id,
+          status: 'waiting'
+        });
+
+      if (error) {
+        console.error('매칭 요청 오류:', error);
+        toast({
+          title: "매칭 요청 실패",
+          description: "매칭 요청을 처리하는데 실패했습니다.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "매칭 요청 완료",
+        description: "매칭 요청이 성공적으로 등록되었습니다.",
+      });
+    } catch (error) {
+      console.error('매칭 요청 오류:', error);
+      toast({
+        title: "매칭 요청 실패", 
+        description: "매칭 요청을 처리하는데 실패했습니다.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -497,7 +541,12 @@ const Games = () => {
                   </div>
 
                    <div className="flex gap-2">
-                     <Button size="sm" className="flex-1">
+                     <Button 
+                       size="sm" 
+                       className="flex-1"
+                       onClick={() => handleMatchRequest(game.id)}
+                       disabled={!user}
+                     >
                        매칭 찾기
                      </Button>
                      {game.steamAppId && (
