@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AuthForm } from "./AuthForm";
+import { ProfileModal } from "./ProfileModal";
 import { LogIn, User, Settings, Crown, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ export const Header = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [showAuthForm, setShowAuthForm] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleLogout = () => {
     signOut();
@@ -87,7 +89,10 @@ export const Header = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56 bg-card border-border" align="end" forceMount>
-                    <div className="flex items-center justify-start gap-2 p-2">
+                    <div 
+                      className="flex items-center justify-start gap-2 p-2 cursor-pointer hover:bg-muted/50 rounded-md transition-colors"
+                      onClick={() => setShowProfileModal(true)}
+                    >
                       <div className="flex flex-col space-y-1 leading-none">
                         <div className="flex items-center gap-2">
                           <p className="font-medium text-foreground">{displayUser.username}</p>
@@ -99,6 +104,7 @@ export const Header = () => {
                           )}
                         </div>
                         <p className="text-xs text-muted-foreground">{displayUser.email}</p>
+                        <p className="text-xs text-primary">프로필 카드 보기</p>
                       </div>
                     </div>
                     <DropdownMenuSeparator />
@@ -145,6 +151,9 @@ export const Header = () => {
 
       {/* Auth Modal */}
       {showAuthForm && <AuthForm onClose={() => setShowAuthForm(false)} />}
+      
+      {/* Profile Modal */}
+      {showProfileModal && <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} />}
     </>
   );
 };
