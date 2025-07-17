@@ -113,7 +113,8 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-korean;
+    font-size: 14px; /* 기본 16px에서 2px 줄임 */
   }
   
   /* 스크롤바 숨기기 */
