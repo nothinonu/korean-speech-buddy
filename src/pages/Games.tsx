@@ -85,8 +85,30 @@ const Games = () => {
   const fetchGames = async () => {
     try {
       setLoading(true);
-      // 초기 로드시 목업 게임 데이터 표시
-      setGames(mockGames);
+      // 데이터베이스에서 게임 목록 가져오기
+      const { data: dbGames, error } = await supabase
+        .from('games')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('게임 목록을 불러오는데 실패했습니다:', error);
+        setGames(mockGames);
+      } else {
+        // 데이터베이스 형태를 컴포넌트에서 사용하는 형태로 변환
+        const formattedGames = dbGames.map(game => ({
+          id: game.id,
+          name: game.name,
+          description: game.description || '',
+          imageUrl: game.image_url || '/placeholder.svg',
+          steamAppId: game.steam_app_id,
+          playerCount: game.player_count,
+          isCooperative: game.is_cooperative,
+          rating: game.rating ? Number(game.rating) : undefined,
+          tags: game.tags || []
+        }));
+        setGames(formattedGames);
+      }
     } catch (error) {
       console.error('게임 목록을 불러오는데 실패했습니다:', error);
       setGames(mockGames);
@@ -127,25 +149,78 @@ const Games = () => {
     setIsModalOpen(true);
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: 실제 게임 추가 로직 구현
-    console.log('게임 추가:', gameForm);
-    toast({
-      title: "게임이 추가되었습니다",
-      description: `${gameForm.name}이(가) 성공적으로 추가되었습니다.`,
-    });
-    setIsModalOpen(false);
-    // 폼 초기화
-    setGameForm({
-      name: '',
-      description: '',
-      imageUrl: '',
-      playerCount: '',
-      isCooperative: false,
-      tags: '',
-      steamAppId: ''
-    });
+    
+    if (!user) {
+      toast({
+        title: "로그인이 필요합니다",
+        description: "게임을 추가하려면 로그인해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // 태그 배열 변환
+      const tagsArray = gameForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+      
+      const { data, error } = await supabase
+        .from('games')
+        .insert([
+          {
+            name: gameForm.name,
+            description: gameForm.description || null,
+            image_url: gameForm.imageUrl || null,
+            steam_app_id: gameForm.steamAppId ? parseInt(gameForm.steamAppId) : null,
+            player_count: gameForm.playerCount,
+            is_cooperative: gameForm.isCooperative,
+            tags: tagsArray,
+            created_by: user.id
+          }
+        ]);
+
+      if (error) {
+        console.error('게임 추가 오류:', error);
+        toast({
+          title: "게임 추가 실패",
+          description: "게임을 추가하는데 실패했습니다. 다시 시도해주세요.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "게임이 추가되었습니다",
+        description: `${gameForm.name}이(가) 성공적으로 추가되었습니다.`,
+      });
+      
+      // 게임 목록 새로고침
+      fetchGames();
+      
+      setIsModalOpen(false);
+      // 폼 초기화
+      setGameForm({
+        name: '',
+        description: '',
+        imageUrl: '',
+        playerCount: '',
+        isCooperative: false,
+        tags: '',
+        steamAppId: ''
+      });
+      setNoSteamGame(false);
+      setShowSteamSearch(false);
+      setShowSteamGames(false);
+      setSteamSearchTerm('');
+    } catch (error) {
+      console.error('게임 추가 오류:', error);
+      toast({
+        title: "게임 추가 실패",
+        description: "게임을 추가하는데 실패했습니다. 다시 시도해주세요.",
+        variant: "destructive",
+      });
+    }
   };
 
   const searchSteamGames = async (searchQuery: string) => {
