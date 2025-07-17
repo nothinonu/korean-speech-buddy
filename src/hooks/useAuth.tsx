@@ -31,15 +31,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // 인증 상태 변화 감지를 먼저 설정
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
+        console.log('Auth state changed:', event, session?.user?.email);
         setSession(session)
         setUser(session?.user ?? null)
+        
+        // 프로필 동기화 (새 세션이 있을 때만)
+        if (session?.user && event === 'SIGNED_IN') {
+          setTimeout(() => {
+            syncUserProfile(session.user);
+          }, 100);
+        }
+        
         setLoading(false)
       }
     )
 
     // 현재 세션 확인
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session?.user?.email);
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -47,6 +57,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const syncUserProfile = async (user: any) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('프로필 조회 오류:', error);
+        return;
+      }
+
+      // 프로필이 없으면 생성
+      if (!profile) {
+        const username = user.user_metadata?.username || user.email?.split('@')[0] || 'user';
+        
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            username: username,
+            display_name: username
+          });
+
+        if (insertError) {
+          console.error('프로필 생성 오류:', insertError);
+        } else {
+          console.log('프로필이 성공적으로 생성되었습니다');
+        }
+      }
+    } catch (error) {
+      console.error('프로필 동기화 중 오류:', error);
+    }
+  }
 
   const signUp = async (email: string, password: string, username: string): Promise<boolean> => {
     try {
