@@ -373,7 +373,9 @@ const Games = () => {
                           handleInputChange('description', game.description || '');
                           handleInputChange('imageUrl', game.imageUrl || '');
                           handleInputChange('steamAppId', game.steamAppId);
+                          handleInputChange('tags', game.tags.join(', '));
                           setShowSteamGames(false);
+                          setShowSteamSearch(false);
                         }}
                       >
                         <div className="flex items-center gap-2">
