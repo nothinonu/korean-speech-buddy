@@ -412,57 +412,61 @@ const Games = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="imageUrl">이미지 URL</Label>
-              <Input
-                id="imageUrl"
-                value={gameForm.imageUrl}
-                onChange={(e) => handleInputChange('imageUrl', e.target.value)}
-                placeholder="게임 이미지 URL을 입력하세요"
-                type="url"
-              />
-            </div>
+            {noSteamGame && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="imageUrl">이미지 URL</Label>
+                  <Input
+                    id="imageUrl"
+                    value={gameForm.imageUrl}
+                    onChange={(e) => handleInputChange('imageUrl', e.target.value)}
+                    placeholder="게임 이미지 URL을 입력하세요"
+                    type="url"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="playerCount">플레이어 수 *</Label>
-              <Input
-                id="playerCount"
-                value={gameForm.playerCount}
-                onChange={(e) => handleInputChange('playerCount', e.target.value)}
-                placeholder="예: 1-4명, 2명, 온라인 멀티플레이어"
-                required
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="playerCount">플레이어 수 *</Label>
+                  <Input
+                    id="playerCount"
+                    value={gameForm.playerCount}
+                    onChange={(e) => handleInputChange('playerCount', e.target.value)}
+                    placeholder="예: 1-4명, 2명, 온라인 멀티플레이어"
+                    required
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="steamAppId">스팀 앱 ID (선택사항)</Label>
-              <Input
-                id="steamAppId"
-                value={gameForm.steamAppId}
-                onChange={(e) => handleInputChange('steamAppId', e.target.value)}
-                placeholder="스팀 게임의 앱 ID (숫자)"
-                type="number"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="steamAppId">스팀 앱 ID (선택사항)</Label>
+                  <Input
+                    id="steamAppId"
+                    value={gameForm.steamAppId}
+                    onChange={(e) => handleInputChange('steamAppId', e.target.value)}
+                    placeholder="스팀 게임의 앱 ID (숫자)"
+                    type="number"
+                  />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="tags">태그</Label>
-              <Input
-                id="tags"
-                value={gameForm.tags}
-                onChange={(e) => handleInputChange('tags', e.target.value)}
-                placeholder="태그를 쉼표로 구분해서 입력 (예: 협동, FPS, 어드벤처)"
-              />
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="tags">태그</Label>
+                  <Input
+                    id="tags"
+                    value={gameForm.tags}
+                    onChange={(e) => handleInputChange('tags', e.target.value)}
+                    placeholder="태그를 쉼표로 구분해서 입력 (예: 협동, FPS, 어드벤처)"
+                  />
+                </div>
 
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="isCooperative"
-                checked={gameForm.isCooperative}
-                onCheckedChange={(checked) => handleInputChange('isCooperative', checked)}
-              />
-              <Label htmlFor="isCooperative">협동 게임</Label>
-            </div>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isCooperative"
+                    checked={gameForm.isCooperative}
+                    onCheckedChange={(checked) => handleInputChange('isCooperative', checked)}
+                  />
+                  <Label htmlFor="isCooperative">협동 게임</Label>
+                </div>
+              </>
+            )}
 
             <div className="flex gap-2 pt-4">
               <Button
