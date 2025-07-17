@@ -1,15 +1,3 @@
-import { createClient } from '@supabase/supabase-js'
-
-const supabaseUrl = 'https://your-project.supabase.co'
-const supabaseKey = 'your-anon-key'
-
-export const supabase = createClient(supabaseUrl, supabaseKey)
-
-export type User = {
-  id: string
-  email: string
-  user_metadata: {
-    username?: string
-  }
-  created_at: string
-}
+// This file is deprecated - use @/integrations/supabase/client instead
+export { supabase } from '@/integrations/supabase/client'
+export type { User } from '@supabase/supabase-js'

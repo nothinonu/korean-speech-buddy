@@ -1,9 +1,11 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react'
-import { supabase, type User } from '@/lib/supabase'
+import { supabase } from '@/integrations/supabase/client'
 import { useToast } from '@/hooks/use-toast'
+import type { User, Session } from '@supabase/supabase-js'
 
 interface AuthContextType {
   user: User | null
+  session: Session | null
   loading: boolean
   signUp: (email: string, password: string, username: string) => Promise<boolean>
   signIn: (email: string, password: string) => Promise<boolean>
@@ -22,33 +24,39 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
 
   useEffect(() => {
-    // 현재 세션 확인
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user as User || null)
-      setLoading(false)
-    })
-
-    // 인증 상태 변화 감지
+    // 인증 상태 변화 감지를 먼저 설정
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
-        setUser(session?.user as User || null)
+        setSession(session)
+        setUser(session?.user ?? null)
         setLoading(false)
       }
     )
+
+    // 현재 세션 확인
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+    })
 
     return () => subscription.unsubscribe()
   }, [])
 
   const signUp = async (email: string, password: string, username: string): Promise<boolean> => {
     try {
+      const redirectUrl = `${window.location.origin}/`
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             username
           }
@@ -122,6 +130,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const value = {
     user,
+    session,
     loading,
     signUp,
     signIn,
