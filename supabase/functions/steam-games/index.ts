@@ -34,11 +34,112 @@ serve(async (req) => {
       throw new Error('Steam API key not configured')
     }
 
-    // Get search term from request body
+    // Get search term from request body or use cooperative games
     const body = await req.json().catch(() => ({}))
     const searchTerm = body.search || ''
+    const loadCoopGames = body.loadCoopGames || false
+
+    let filteredApps: SteamApp[] = []
     
-    if (!searchTerm.trim()) {
+    if (loadCoopGames) {
+      // Load popular cooperative games directly
+      const coopGameAppIds = [
+        1091500, // Cyberpunk 2077
+        570, // Dota 2
+        730, // Counter-Strike 2
+        440, // Team Fortress 2
+        271590, // Grand Theft Auto V
+        1172470, // Apex Legends
+        1203220, // NARAKA: BLADEPOINT
+        231430, // Company of Heroes 2
+        304930, // Unturned
+        553850, // HELLDIVERS 2
+        1406990, // VALHEIM
+        892970, // ELDEN RING
+        646570, // Slay the Spire
+        293780, // War Thunder
+        252490, // Rust
+        413150, // Stardew Valley
+        1240440, // Halo Infinite
+        1938090, // Call of Duty: Warzone 2.0
+        289070, // Sid Meier's Civilization VI
+        236850, // Europa Universalis IV
+        1073600, // DEAD BY DAYLIGHT
+        275850, // No Man's Sky
+        1581630, // Golf With Your Friends
+        863550, // The Forest
+        556450, // Hearthstone
+        632360, // Risk of Rain 2
+        1203220, // NARAKA: BLADEPOINT
+        578080, // PLAYERUNKNOWN'S BATTLEGROUNDS
+        238460, // BattleBlock Theater
+        620, // Portal 2
+        322330, // Don't Starve Together
+        431960, // Wallpaper Engine
+        513710, // Payday 2
+        1091500, // Cyberpunk 2077
+        570940, // DARK SOULS III
+        570, // Dota 2
+        105600, // Terraria
+        230410, // Warframe
+        730, // Counter-Strike 2
+        550, // Left 4 Dead 2
+        440, // Team Fortress 2
+        271590, // Grand Theft Auto V
+        1172470, // Apex Legends
+        1938090, // Call of Duty: Warzone 2.0
+        391540, // Undertale
+        812140, // A Hat in Time
+        553850, // HELLDIVERS 2
+        976730, // Halo: The Master Chief Collection
+        1406990, // VALHEIM
+        1774580, // SPIDER-MAN REMASTERED
+        413150, // Stardew Valley
+        1203220, // NARAKA: BLADEPOINT
+        211820, // Starbound
+        294100, // RimWorld
+        377160, // Fallout 4
+        251570, // 7 Days to Die
+        8930, // Sid Meier's Civilization V
+        289070, // Sid Meier's Civilization VI
+        236850, // Europa Universalis IV
+        200710, // Torchlight II
+        252490, // Rust
+        275850, // No Man's Sky
+        1091500, // Cyberpunk 2077
+        863550, // The Forest
+        578080, // PLAYERUNKNOWN'S BATTLEGROUNDS
+        238460, // BattleBlock Theater
+        620, // Portal 2
+        322330, // Don't Starve Together
+        431960, // Wallpaper Engine
+        513710, // Payday 2
+        1091500, // Cyberpunk 2077
+        570940, // DARK SOULS III
+        570, // Dota 2
+        105600, // Terraria
+        230410, // Warframe
+        730, // Counter-Strike 2
+        550, // Left 4 Dead 2
+        440, // Team Fortress 2
+        271590, // Grand Theft Auto V
+        1172470 // Apex Legends
+      ];
+      
+      // Create app objects for these known cooperative games
+      filteredApps = coopGameAppIds.slice(0, 30).map(appid => ({ appid, name: '' }));
+    } else if (searchTerm.trim()) {
+      // Get list of Steam apps
+      const appsResponse = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2/')
+      const appsData = await appsResponse.json()
+      
+      // Filter apps by search term (case insensitive)
+      filteredApps = appsData.applist.apps
+        .filter((app: SteamApp) => 
+          app.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .slice(0, 20) // Limit to first 20 results to avoid rate limiting
+    } else {
       return new Response(
         JSON.stringify([]),
         {
@@ -49,17 +150,6 @@ serve(async (req) => {
         }
       )
     }
-
-    // Get list of Steam apps
-    const appsResponse = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2/')
-    const appsData = await appsResponse.json()
-    
-    // Filter apps by search term (case insensitive)
-    const filteredApps = appsData.applist.apps
-      .filter((app: SteamApp) => 
-        app.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      .slice(0, 20) // Limit to first 20 results to avoid rate limiting
 
     const games = []
     

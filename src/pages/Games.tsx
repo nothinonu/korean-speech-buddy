@@ -54,6 +54,7 @@ const Games = () => {
 
   useEffect(() => {
     fetchGames();
+    loadCooperativeGames();
   }, []);
 
   useEffect(() => {
@@ -220,6 +221,50 @@ const Games = () => {
         description: "게임을 추가하는데 실패했습니다. 다시 시도해주세요.",
         variant: "destructive",
       });
+    }
+  };
+
+  const loadCooperativeGames = async () => {
+    try {
+      const { data: steamGameData, error } = await supabase.functions.invoke('steam-games', {
+        body: { loadCoopGames: true }
+      });
+      
+      if (error) {
+        console.error('협동게임 불러오기에 실패했습니다:', error);
+      } else if (steamGameData && steamGameData.length > 0) {
+        // 스팀에서 가져온 협동게임들을 데이터베이스에 저장
+        const gameInserts = steamGameData.map((game: any) => ({
+          name: game.name,
+          description: game.description || '',
+          image_url: game.imageUrl || null,
+          steam_app_id: game.steamAppId,
+          player_count: game.playerCount,
+          is_cooperative: true,
+          tags: game.tags || [],
+          created_by: null // 시스템에서 추가한 게임
+        }));
+
+        // 기존에 동일한 steam_app_id가 있는지 확인하고 없는 것만 추가
+        for (const gameData of gameInserts) {
+          if (gameData.steam_app_id) {
+            const { data: existingGame } = await supabase
+              .from('games')
+              .select('id')
+              .eq('steam_app_id', gameData.steam_app_id)
+              .single();
+            
+            if (!existingGame) {
+              await supabase.from('games').insert([gameData]);
+            }
+          }
+        }
+        
+        // 게임 목록 새로고침
+        fetchGames();
+      }
+    } catch (error) {
+      console.error('협동게임 불러오기에 실패했습니다:', error);
     }
   };
 
