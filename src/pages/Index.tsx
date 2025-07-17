@@ -24,10 +24,7 @@ const Index = () => {
   useEffect(() => {
     const loadGameData = async () => {
       try {
-        // 먼저 스팀 협동게임 불러오기
-        await loadCooperativeGames();
-        
-        // 그 다음 최신 게임 수 조회
+        // 게임 수 조회
         const { count, error } = await supabase
           .from('games')
           .select('*', { count: 'exact', head: true });
@@ -36,10 +33,22 @@ const Index = () => {
           throw error;
         }
         
-        setGameCount(count || 10);
+        // 30개 이상의 게임이 없으면 먼저 협동게임 불러오기
+        if (!count || count < 30) {
+          await loadCooperativeGames();
+          
+          // 다시 게임 수 조회
+          const { count: newCount } = await supabase
+            .from('games')
+            .select('*', { count: 'exact', head: true });
+            
+          setGameCount(newCount || 30);
+        } else {
+          setGameCount(count);
+        }
       } catch (error) {
         console.log('게임 데이터를 불러오지 못했습니다:', error);
-        setGameCount(10);
+        setGameCount(30);
       }
     };
     loadGameData();

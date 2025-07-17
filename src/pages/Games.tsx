@@ -241,45 +241,88 @@ const Games = () => {
 
   const loadCooperativeGames = async () => {
     try {
-      const { data: steamGameData, error } = await supabase.functions.invoke('steam-games', {
-        body: { loadCoopGames: true }
-      });
-      
-      if (error) {
-        console.error('협동게임 불러오기에 실패했습니다:', error);
-      } else if (steamGameData && steamGameData.length > 0) {
-        // 스팀에서 가져온 협동게임들을 데이터베이스에 저장
-        const gameInserts = steamGameData.map((game: any) => ({
-          name: game.name,
-          description: game.description || '',
-          image_url: game.imageUrl || null,
-          steam_app_id: game.steamAppId,
-          player_count: game.playerCount,
-          is_cooperative: true,
-          tags: game.tags || [],
-          created_by: null // 시스템에서 추가한 게임
-        }));
+      // 미리 준비된 협동게임 데이터
+      const cooperativeGames = [
+        { name: "It Takes Two", description: "협동 액션 어드벤처 게임", steam_app_id: 1426210, player_count: "2명" },
+        { name: "Portal 2", description: "물리학 기반 퍼즐 게임의 협동 모드", steam_app_id: 620, player_count: "2명" },
+        { name: "Overcooked! 2", description: "요리 시뮬레이션 협동 게임", steam_app_id: 728880, player_count: "1-4명" },
+        { name: "A Way Out", description: "탈옥을 다룬 협동 액션 어드벤처", steam_app_id: 1222700, player_count: "2명" },
+        { name: "Deep Rock Galactic", description: "우주 광부들의 협동 FPS", steam_app_id: 548430, player_count: "1-4명" },
+        { name: "Stardew Valley", description: "농장 시뮬레이션 게임", steam_app_id: 413150, player_count: "1-4명" },
+        { name: "Don't Starve Together", description: "생존 게임", steam_app_id: 322330, player_count: "2-6명" },
+        { name: "Terraria", description: "2D 샌드박스 어드벤처 게임", steam_app_id: 105600, player_count: "1-8명" },
+        { name: "Left 4 Dead 2", description: "좀비 협동 슈터", steam_app_id: 550, player_count: "1-4명" },
+        { name: "Minecraft", description: "블록 건설 게임", steam_app_id: 1085660, player_count: "1-10명" },
+        { name: "Among Us", description: "소셜 추론 게임", steam_app_id: 945360, player_count: "4-15명" },
+        { name: "Phasmophobia", description: "유령 수사 협동 공포게임", steam_app_id: 739630, player_count: "1-4명" },
+        { name: "Human: Fall Flat", description: "물리 기반 퍼즐 플랫포머", steam_app_id: 477160, player_count: "1-8명" },
+        { name: "Moving Out", description: "가구 이사 시뮬레이션", steam_app_id: 996770, player_count: "1-4명" },
+        { name: "Cuphead", description: "런앤건 플랫포머", steam_app_id: 268910, player_count: "1-2명" },
+        { name: "Unravel Two", description: "퍼즐 플랫포머", steam_app_id: 1225570, player_count: "1-2명" },
+        { name: "Cook Out", description: "요리 협동 게임", steam_app_id: 1063110, player_count: "1-4명" },
+        { name: "Castle Crashers", description: "액션 비트엠업", steam_app_id: 204360, player_count: "1-4명" },
+        { name: "Borderlands 3", description: "협동 슈터 RPG", steam_app_id: 397540, player_count: "1-4명" },
+        { name: "Risk of Rain 2", description: "3D 로그라이크", steam_app_id: 632360, player_count: "1-4명" },
+        { name: "Divinity: Original Sin 2", description: "턴제 RPG", steam_app_id: 435150, player_count: "1-4명" },
+        { name: "Monster Hunter: World", description: "액션 RPG", steam_app_id: 582010, player_count: "1-4명" },
+        { name: "The Forest", description: "생존 공포 게임", steam_app_id: 242760, player_count: "1-8명" },
+        { name: "Raft", description: "바다 생존 게임", steam_app_id: 648800, player_count: "1-4명" },
+        { name: "Valheim", description: "바이킹 생존 게임", steam_app_id: 892970, player_count: "1-10명" },
+        { name: "Green Hell", description: "아마존 생존 게임", steam_app_id: 815370, player_count: "1-4명" },
+        { name: "Gang Beasts", description: "물리 기반 파티 게임", steam_app_id: 285900, player_count: "1-8명" },
+        { name: "Fall Guys", description: "배틀로얄 파티 게임", steam_app_id: 1097150, player_count: "온라인 60명" },
+        { name: "Rocket League", description: "자동차 축구 게임", steam_app_id: 252950, player_count: "1-8명" },
+        { name: "Sea of Thieves", description: "해적 어드벤처", steam_app_id: 1172620, player_count: "1-4명" }
+      ];
 
-        // 기존에 동일한 steam_app_id가 있는지 확인하고 없는 것만 추가
-        for (const gameData of gameInserts) {
-          if (gameData.steam_app_id) {
-            const { data: existingGame } = await supabase
-              .from('games')
-              .select('id')
-              .eq('steam_app_id', gameData.steam_app_id)
-              .single();
-            
-            if (!existingGame) {
-              await supabase.from('games').insert([gameData]);
-            }
+      let addedCount = 0;
+      for (const gameData of cooperativeGames) {
+        // 기존에 동일한 steam_app_id가 있는지 확인
+        const { data: existingGame } = await supabase
+          .from('games')
+          .select('id')
+          .eq('steam_app_id', gameData.steam_app_id)
+          .maybeSingle();
+        
+        if (!existingGame) {
+          const { error } = await supabase.from('games').insert([{
+            name: gameData.name,
+            description: gameData.description,
+            image_url: null,
+            steam_app_id: gameData.steam_app_id,
+            player_count: gameData.player_count,
+            is_cooperative: true,
+            tags: ['협동'],
+            created_by: null
+          }]);
+          
+          if (!error) {
+            addedCount++;
           }
         }
+      }
+
+      if (addedCount > 0) {
+        toast({
+          title: "협동게임 추가 완료",
+          description: `${addedCount}개의 새로운 협동게임이 추가되었습니다.`,
+        });
         
-        // 게임 목록 새로고침 - 모든 게임을 다시 로드
+        // 게임 목록 새로고침
         await fetchGames();
+      } else {
+        toast({
+          title: "이미 최신 상태입니다",
+          description: "모든 협동게임이 이미 추가되어 있습니다.",
+        });
       }
     } catch (error) {
       console.error('협동게임 불러오기에 실패했습니다:', error);
+      toast({
+        title: "오류 발생",
+        description: "협동게임을 불러오는데 실패했습니다.",
+        variant: "destructive",
+      });
     }
   };
 
