@@ -8,6 +8,8 @@ import { Plus, Search, Users, Star, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ScrollToTop from '@/components/ScrollToTop';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface Game {
   id: string;
@@ -25,11 +27,40 @@ const Games = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchGames();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (error) {
+        console.error('프로필을 불러오는데 실패했습니다:', error);
+      } else {
+        setProfile(data);
+      }
+    } catch (error) {
+      console.error('프로필을 불러오는데 실패했습니다:', error);
+    }
+  };
 
   const fetchGames = async () => {
     try {
@@ -60,7 +91,29 @@ const Games = () => {
   );
 
   const addCustomGame = () => {
-    // TODO: Implement custom game addition modal
+    // 로그인 확인
+    if (!user) {
+      toast({
+        title: "로그인이 필요합니다",
+        description: "게임을 추가하려면 먼저 로그인해주세요.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    // 스팀 ID 확인
+    if (!profile?.steam_id) {
+      toast({
+        title: "스팀 계정 연동이 필요합니다",
+        description: "게임을 추가하려면 프로필에서 스팀 계정을 연동해주세요.",
+        variant: "destructive",
+      });
+      navigate('/profile');
+      return;
+    }
+
+    // 모든 조건을 만족한 경우
     toast({
       title: "게임 추가",
       description: "게임 추가 기능이 곧 추가될 예정입니다.",
