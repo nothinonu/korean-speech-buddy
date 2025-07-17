@@ -42,52 +42,255 @@ serve(async (req) => {
     let filteredApps: SteamApp[] = []
     
     if (loadCoopGames) {
-      // Load popular cooperative games directly
+      // Steam에서 "coop" 태그가 있는 인기 게임들을 더 많이 가져오기
       const coopGameAppIds = [
+        // 기존 협동 게임들
         1091500, // Cyberpunk 2077
-        570, // Dota 2
-        730, // Counter-Strike 2
-        440, // Team Fortress 2
-        271590, // Grand Theft Auto V
-        1172470, // Apex Legends
-        1203220, // NARAKA: BLADEPOINT
-        231430, // Company of Heroes 2
-        304930, // Unturned
-        553850, // HELLDIVERS 2
-        1406990, // VALHEIM
-        892970, // ELDEN RING
-        646570, // Slay the Spire
-        293780, // War Thunder
-        252490, // Rust
-        413150, // Stardew Valley
-        1240440, // Halo Infinite
-        1938090, // Call of Duty: Warzone 2.0
-        289070, // Sid Meier's Civilization VI
-        236850, // Europa Universalis IV
-        1073600, // DEAD BY DAYLIGHT
-        275850, // No Man's Sky
-        1581630, // Golf With Your Friends
-        863550, // The Forest
-        556450, // Hearthstone
-        632360, // Risk of Rain 2
-        1203220, // NARAKA: BLADEPOINT
-        578080, // PLAYERUNKNOWN'S BATTLEGROUNDS
-        238460, // BattleBlock Theater
         620, // Portal 2
+        366900, // Overcooked! 2
+        1172470, // Apex Legends
+        413150, // Stardew Valley
+        632360, // Risk of Rain 2
         322330, // Don't Starve Together
-        431960, // Wallpaper Engine
         513710, // Payday 2
-        1091500, // Cyberpunk 2077
+        550, // Left 4 Dead 2
+        1938090, // Call of Duty: Warzone 2.0
+        381210, // Dead by Daylight
+        275850, // No Man's Sky
+        863550, // The Forest
+        289070, // Sid Meier's Civilization VI
+        
+        // 추가 협동 게임들
+        1151340, // It Takes Two
         570940, // DARK SOULS III
-        570, // Dota 2
         105600, // Terraria
         230410, // Warframe
+        252490, // Rust
+        553850, // HELLDIVERS 2
+        1406990, // Valheim
+        346110, // ARK: Survival Evolved
+        582010, // Monster Hunter: World
+        892970, // Elden Ring
+        552520, // Human: Fall Flat
+        774361, // Astroneer
+        736260, // Raft
+        815370, // Green Hell
+        251570, // 7 Days to Die
+        814380, // Sekiro: Shadows Die Twice
+        49520, // Borderlands 2
+        367520, // Hollow Knight
+        304930, // Unturned
+        238460, // BattleBlock Theater
+        1581630, // Golf With Your Friends
+        646570, // Slay the Spire
+        293780, // War Thunder
+        1240440, // Halo Infinite
+        236850, // Europa Universalis IV
+        556450, // Hearthstone
+        578080, // PLAYERUNKNOWN'S BATTLEGROUNDS
+        431960, // Wallpaper Engine
+        646570, // Slay the Spire
+        294100, // RimWorld
+        251570, // 7 Days to Die
+        518790, // Overwatch 2
+        440900, // Conan Exiles
+        489830, // The Elder Scrolls Online
+        323190, // Forts
+        214850, // Magicka 2
+        214850, // Magicka
+        214850, // Magicka 2
+        570, // Dota 2
         730, // Counter-Strike 2
-        550, // Left 4 Dead 2
         440, // Team Fortress 2
         271590, // Grand Theft Auto V
-        1172470, // Apex Legends
-        1938090, // Call of Duty: Warzone 2.0
+        231430, // Company of Heroes 2
+        1203220, // NARAKA: BLADEPOINT
+        359550, // Tom Clancy's Rainbow Six Siege
+        438100, // VRChat
+        1091500, // Cyberpunk 2077
+        1985790, // Lethal Company
+        1966720, // Phasmophobia
+        1326470, // Sons Of The Forest
+        739630, // Pico Park
+        1174180, // Red Dead Redemption 2
+        396750, // Overwatch
+        72850, // The Elder Scrolls V: Skyrim
+        292030, // The Witcher 3: Wild Hunt
+        
+        // 새로운 협동 게임들 더 추가
+        311210, // Call of Duty: Black Ops III
+        393380, // Squad
+        251570, // 7 Days to Die
+        251570, // 7 Days to Die (중복 제거용)
+        394360, // Hearts of Iron IV
+        1296830, // Golf It!
+        524220, // NieR: Automata
+        394360, // Hearts of Iron IV
+        291550, // Brawlhalla
+        368870, // Age of Empires II: Definitive Edition
+        550, // Left 4 Dead 2
+        239140, // Dying Light
+        1382330, // READY OR NOT
+        1623730, // Palworld
+        1086940, // Baldur's Gate 3
+        377160, // Fallout 4
+        
+        // 인디 협동 게임들
+        447020, // Cuphead
+        1649240, // A Way Out
+        394360, // Hearts of Iron IV
+        1593500, // God of War
+        1091500, // Cyberpunk 2077
+        489830, // The Elder Scrolls Online
+        244210, // Assetto Corsa
+        1174180, // Red Dead Redemption 2
+        548430, // Deep Rock Galactic
+        739630, // Pico Park
+        620980, // Beat Saber
+        322330, // Don't Starve Together
+        394690, // Tower Unite
+        1326470, // Sons Of The Forest
+        896100, // Moving Out
+        
+        // 플랫포머 협동 게임들
+        311210, // Call of Duty: Black Ops III
+        238460, // BattleBlock Theater
+        1649240, // A Way Out
+        447020, // Cuphead
+        632360, // Risk of Rain 2
+        440900, // Conan Exiles
+        863550, // The Forest
+        548430, // Deep Rock Galactic
+        582010, // Monster Hunter: World
+        739630, // Pico Park
+        1581630, // Golf With Your Friends
+        552520, // Human: Fall Flat
+        1151340, // It Takes Two
+        896100, // Moving Out
+        739630, // Pico Park
+        448510, // Overcooked!
+        366900, // Overcooked! 2
+        1296830, // Golf It!
+        
+        // 서바이벌 협동 게임들
+        346110, // ARK: Survival Evolved
+        1406990, // Valheim
+        863550, // The Forest
+        252490, // Rust
+        815370, // Green Hell
+        251570, // 7 Days to Die
+        440900, // Conan Exiles
+        736260, // Raft
+        774361, // Astroneer
+        1326470, // Sons Of The Forest
+        304930, // Unturned
+        294100, // RimWorld
+        489830, // The Elder Scrolls Online
+        
+        // 액션 협동 게임들
+        553850, // HELLDIVERS 2
+        550, // Left 4 Dead 2
+        381210, // Dead by Daylight
+        230410, // Warframe
+        513710, // Payday 2
+        1073600, // Dead by Daylight
+        1966720, // Phasmophobia
+        1985790, // Lethal Company
+        239140, // Dying Light
+        1382330, // READY OR NOT
+        
+        // 레이싱 협동 게임들
+        244210, // Assetto Corsa
+        
+        // VR 협동 게임들
+        620980, // Beat Saber
+        438100, // VRChat
+        
+        // 파티 게임들
+        394690, // Tower Unite
+        1581630, // Golf With Your Friends
+        1296830, // Golf It!
+        739630, // Pico Park
+        896100, // Moving Out
+        448510, // Overcooked!
+        366900, // Overcooked! 2
+        
+        // 추가로 더 많은 협동 게임들
+        1623730, // Palworld
+        1086940, // Baldur's Gate 3
+        1174180, // Red Dead Redemption 2
+        377160, // Fallout 4
+        524220, // NieR: Automata
+        291550, // Brawlhalla
+        368870, // Age of Empires II: Definitive Edition
+        1593500, // God of War
+        292030, // The Witcher 3: Wild Hunt
+        72850, // The Elder Scrolls V: Skyrim
+        359550, // Tom Clancy's Rainbow Six Siege
+        518790, // Overwatch 2
+        396750, // Overwatch
+        323190, // Forts
+        214850, // Magicka 2
+        
+        // 최신 인기 협동 게임들 추가
+        1245620, // ELDEN RING
+        1174180, // Red Dead Redemption 2
+        582010, // Monster Hunter: World
+        814380, // Sekiro: Shadows Die Twice
+        1593500, // God of War
+        524220, // NieR: Automata
+        377160, // Fallout 4
+        292030, // The Witcher 3: Wild Hunt
+        72850, // The Elder Scrolls V: Skyrim
+        1086940, // Baldur's Gate 3
+        1623730, // Palworld
+        1966720, // Phasmophobia
+        1985790, // Lethal Company
+        1382330, // READY OR NOT
+        1326470, // Sons Of The Forest
+        
+        // 클래식 협동 게임들
+        620, // Portal 2
+        550, // Left 4 Dead 2
+        105600, // Terraria
+        49520, // Borderlands 2
+        440, // Team Fortress 2
+        322330, // Don't Starve Together
+        413150, // Stardew Valley
+        
+        // MMO 협동 게임들
+        570, // Dota 2
+        730, // Counter-Strike 2
+        230410, // Warframe
+        489830, // The Elder Scrolls Online
+        
+        // 전략 협동 게임들
+        289070, // Sid Meier's Civilization VI
+        236850, // Europa Universalis IV
+        394360, // Hearts of Iron IV
+        231430, // Company of Heroes 2
+        368870, // Age of Empires II: Definitive Edition
+        323190, // Forts
+        393380, // Squad
+        
+        // 시뮬레이션 협동 게임들
+        294100, // RimWorld
+        774361, // Astroneer
+        244210, // Assetto Corsa
+        
+        // 인디 협동 게임들 더 추가
+        447020, // Cuphead
+        552520, // Human: Fall Flat
+        739630, // Pico Park
+        1296830, // Golf It!
+        896100, // Moving Out
+        1581630, // Golf With Your Friends
+        448510, // Overcooked!
+        366900, // Overcooked! 2
+        1151340, // It Takes Two
+        1649240, // A Way Out
+        632360, // Risk of Rain 2
+        548430, // Deep Rock Galactic
         391540, // Undertale
         812140, // A Hat in Time
         553850, // HELLDIVERS 2
