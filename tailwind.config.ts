@@ -21,6 +21,7 @@ export default {
       fontFamily: {
         'gaming': ['Orbitron', 'monospace'],
         'modern': ['Exo 2', 'sans-serif'],
+        'korean': ['IBM Plex Sans KR', 'sans-serif'],
       },
       colors: {
 				border: 'hsl(var(--border))',
