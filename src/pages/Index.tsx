@@ -173,24 +173,28 @@ const Index = () => {
         style={{ backgroundImage: `url(${heroImage})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background"></div>
-        <div className="relative z-10 text-center space-y-6 px-4">
-          <h1 className="text-5xl font-bold text-foreground mb-4">
-            게임 메이트 <span className="bg-gradient-primary bg-clip-text text-transparent">매칭 플랫폼</span>
+        <div className="relative z-10 text-center space-y-6 px-4 animate-fade-in">
+          <h1 className="text-6xl font-gaming font-black text-foreground mb-4 animate-scale-in hover-scale tracking-wide">
+            <span className="inline-block animate-fade-in">게임 메이트</span>{" "}
+            <span className="bg-gradient-primary bg-clip-text text-transparent inline-block animate-fade-in [animation-delay:0.2s] hover:animate-pulse">
+              매칭 플랫폼
+            </span>
           </h1>
-          <p className="text-xl text-muted-foreground mb-8">
-            취향이 맞는 게이머를 찾아 함께 플레이하고 새로운 친구를 만나보세요
+          <p className="text-xl font-modern font-light text-muted-foreground mb-8 animate-fade-in [animation-delay:0.4s] leading-relaxed">
+            취향이 맞는 게이머를 찾아 함께 플레이하고 <br className="hidden sm:block" />
+            <span className="font-semibold text-foreground">새로운 친구</span>를 만나보세요
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+          <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto animate-fade-in [animation-delay:0.6s]">
+            <div className="relative flex-1 group">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground group-hover:text-primary transition-colors" size={20} />
               <Input 
                 placeholder="플레이어 또는 원하는 게임 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-card border-border"
+                className="pl-10 bg-card/80 border-border font-modern hover:bg-card transition-all duration-300 hover:shadow-lg hover:border-primary/50"
               />
             </div>
-            <Button className="bg-gradient-accent text-accent-foreground hover:shadow-glow">
+            <Button className="bg-gradient-accent text-accent-foreground hover:shadow-glow font-modern font-semibold transform hover:scale-105 transition-all duration-300 hover:-translate-y-1">
               매칭 찾기
             </Button>
           </div>
