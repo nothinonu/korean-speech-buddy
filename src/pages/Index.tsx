@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GameCard } from "@/components/GameCard";
 import { PlayerProfile } from "@/components/PlayerProfile";
 import { GameChannels } from "@/components/GameChannels";
+import { AdBanner } from "@/components/AdBanner";
 import { Search, Gamepad2, Users, MessageSquare } from "lucide-react";
 import heroImage from "@/assets/gaming-hero.jpg";
 
@@ -99,7 +100,23 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      {/* Left Ad Banner */}
+      <div className="hidden xl:block">
+        <div className="left-0">
+          <AdBanner position="left" />
+        </div>
+      </div>
+
+      {/* Right Ad Banner */}
+      <div className="hidden xl:block">
+        <div className="right-0">
+          <AdBanner position="right" />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="xl:mx-64"> {/* 양쪽 광고 공간만큼 마진 */}
       {/* Hero Section */}
       <div 
         className="relative h-96 bg-cover bg-center flex items-center justify-center"
@@ -196,6 +213,7 @@ const Index = () => {
             <GameChannels channels={mockChannels} />
           </TabsContent>
         </Tabs>
+      </div>
       </div>
     </div>
   );
