@@ -11,6 +11,8 @@ interface GameCardProps {
     playerCount: number;
     category: string;
     description: string;
+    createdBy?: string;
+    createdAt?: string;
   };
 }
 
@@ -45,6 +47,11 @@ export const GameCard = ({ game }: GameCardProps) => {
               참여하기
             </Button>
           </div>
+          {game.createdBy && game.createdAt && (
+            <div className="text-xs text-muted-foreground mt-2">
+              <span>{game.createdBy}</span> • <span>{new Date(game.createdAt).toLocaleDateString('ko-KR')}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

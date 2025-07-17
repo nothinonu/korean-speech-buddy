@@ -26,6 +26,9 @@ interface Game {
   isCooperative: boolean;
   rating?: number;
   tags: string[];
+  createdBy?: string;
+  createdAt?: string;
+  createdByName?: string;
 }
 
 const Games = () => {
@@ -93,6 +96,22 @@ const Games = () => {
         .select('*')
         .order('created_at', { ascending: false });
 
+      // 작성자 정보 별도로 가져오기
+      const createdByIds = [...new Set(dbGames?.map(game => game.created_by).filter(Boolean) || [])];
+      let profilesData: any = {};
+      
+      if (createdByIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, display_name, username')
+          .in('id', createdByIds);
+          
+        profilesData = profiles?.reduce((acc, profile) => {
+          acc[profile.id] = profile;
+          return acc;
+        }, {}) || {};
+      }
+
       if (error) {
         console.error('게임 목록을 불러오는데 실패했습니다:', error);
         setGames(mockGames);
@@ -108,7 +127,10 @@ const Games = () => {
           playerCount: game.player_count,
           isCooperative: game.is_cooperative,
           rating: game.rating ? Number(game.rating) : undefined,
-          tags: game.tags || []
+          tags: game.tags || [],
+          createdBy: game.created_by,
+          createdAt: game.created_at,
+          createdByName: profilesData[game.created_by]?.display_name || profilesData[game.created_by]?.username
         }));
         setGames(formattedGames);
         // 처음 30개만 표시
@@ -488,6 +510,12 @@ const Games = () => {
                        </Button>
                      )}
                    </div>
+                   
+                   {game.createdBy && (
+                     <div className="text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
+                       <span>{game.createdByName || '익명'}</span> • <span>{new Date(game.createdAt).toLocaleDateString('ko-KR')}</span>
+                     </div>
+                   )}
                  </CardContent>
                </Card>
              ))}
