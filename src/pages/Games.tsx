@@ -275,8 +275,8 @@ const Games = () => {
           }
         }
         
-        // 게임 목록 새로고침
-        fetchGames();
+        // 게임 목록 새로고침 - 모든 게임을 다시 로드
+        await fetchGames();
       }
     } catch (error) {
       console.error('협동게임 불러오기에 실패했습니다:', error);
