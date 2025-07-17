@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Camera, Save, Link, Gamepad2, Shield, Settings, Crown } from "lucide-react";
+import { User, Camera, Save, Link, Gamepad2, Shield, Settings, Crown, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +41,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSyncingSteam, setIsSyncingSteam] = useState(false);
   const [formData, setFormData] = useState({
     username: "",
     display_name: "",
@@ -148,6 +149,62 @@ const Profile = () => {
       ...formData,
       favorite_games: formData.favorite_games.filter(game => game !== gameToRemove)
     });
+  };
+
+  const syncSteamProfile = async () => {
+    if (!formData.steam_id.trim()) {
+      toast({
+        title: "스팀 ID가 필요합니다",
+        description: "먼저 스팀 ID를 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSyncingSteam(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('sync-steam-profile', {
+        body: { steamId: formData.steam_id }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data.success) {
+        // 스팀 프로필 정보를 데이터베이스에 업데이트
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({
+            ...data.steamProfile,
+            steam_id: formData.steam_id // 현재 입력된 steam_id도 함께 저장
+          })
+          .eq('id', user?.id);
+
+        if (updateError) {
+          throw updateError;
+        }
+
+        toast({
+          title: "스팀 프로필 동기화 완료",
+          description: "스팀 계정 정보를 성공적으로 불러왔습니다."
+        });
+
+        // 업데이트된 프로필 다시 가져오기
+        await fetchProfile();
+      } else {
+        throw new Error(data.error || "스팀 프로필을 찾을 수 없습니다");
+      }
+    } catch (error: any) {
+      console.error('스팀 프로필 동기화 오류:', error);
+      toast({
+        title: "동기화 실패",
+        description: error.message || "스팀 프로필 동기화에 실패했습니다.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSyncingSteam(false);
+    }
   };
 
   if (loading || isLoading) {
@@ -276,6 +333,23 @@ const Profile = () => {
                       Steam 프로필 URL에서 ID 부분을 입력하세요
                     </p>
                   </div>
+
+                  {/* 스팀에서 불러오기 버튼 */}
+                  <Button 
+                    onClick={syncSteamProfile}
+                    disabled={isSyncingSteam || !formData.steam_id.trim()}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                  >
+                    {isSyncingSteam ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    ) : (
+                      <Download className="mr-2 h-4 w-4" />
+                    )}
+                    {isSyncingSteam ? "동기화 중..." : "스팀에서 불러오기"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    스팀 계정 정보(프로필 이미지, 표시명, 레벨, 게임 수)를 자동으로 가져옵니다
+                  </p>
 
                   {profile?.steam_profile_url && (
                     <div className="p-4 bg-muted rounded-lg">
