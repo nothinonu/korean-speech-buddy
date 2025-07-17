@@ -6,9 +6,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { AuthForm } from "./AuthForm";
 import { LogIn, User, Settings, Crown, LogOut, Bell } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
   const { user, signOut, loading } = useAuth();
+  const navigate = useNavigate();
   const [showAuthForm, setShowAuthForm] = useState(false);
 
   const handleLogout = () => {
@@ -100,7 +102,10 @@ export const Header = () => {
                       </div>
                     </div>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem className="cursor-pointer">
+                    <DropdownMenuItem 
+                      className="cursor-pointer"
+                      onClick={() => navigate('/profile')}
+                    >
                       <User className="mr-2 h-4 w-4" />
                       프로필 관리
                     </DropdownMenuItem>
