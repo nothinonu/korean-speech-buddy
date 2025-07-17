@@ -37,6 +37,8 @@ const Games = () => {
   const [steamGames, setSteamGames] = useState<Game[]>([]);
   const [showSteamGames, setShowSteamGames] = useState(false);
   const [noSteamGame, setNoSteamGame] = useState(false);
+  const [steamSearchTerm, setSteamSearchTerm] = useState('');
+  const [showSteamSearch, setShowSteamSearch] = useState(false);
   const [gameForm, setGameForm] = useState({
     name: '',
     description: '',
@@ -156,23 +158,30 @@ const Games = () => {
     });
   };
 
-  const fetchSteamGames = async () => {
-    try {
+  const searchSteamGames = async (searchQuery: string) => {
+    if (!searchQuery.trim()) {
+      setSteamGames([]);
       setShowSteamGames(false);
-      const { data: steamGameData, error } = await supabase.functions.invoke('steam-games');
+      return;
+    }
+
+    try {
+      const { data: steamGameData, error } = await supabase.functions.invoke('steam-games', {
+        body: { search: searchQuery }
+      });
       
       if (error) {
-        console.error('스팀 게임 목록을 불러오는데 실패했습니다:', error);
-        setSteamGames(mockGames);
+        console.error('스팀 게임 검색에 실패했습니다:', error);
+        setSteamGames([]);
       } else if (steamGameData) {
         setSteamGames(steamGameData);
       } else {
-        setSteamGames(mockGames);
+        setSteamGames([]);
       }
       setShowSteamGames(true);
     } catch (error) {
-      console.error('스팀 게임 목록을 불러오는데 실패했습니다:', error);
-      setSteamGames(mockGames);
+      console.error('스팀 게임 검색에 실패했습니다:', error);
+      setSteamGames([]);
       setShowSteamGames(true);
     }
   };
@@ -320,7 +329,7 @@ const Games = () => {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={fetchSteamGames}
+                  onClick={() => setShowSteamSearch(true)}
                   className="flex-1"
                 >
                   스팀에서 찾아보기
@@ -334,6 +343,23 @@ const Games = () => {
                   <Label htmlFor="noSteamGame" className="text-sm">찾는 게임이 없어요</Label>
                 </div>
               </div>
+              
+              {showSteamSearch && !noSteamGame && (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
+                    <Input
+                      placeholder="스팀 게임 검색..."
+                      value={steamSearchTerm}
+                      onChange={(e) => {
+                        setSteamSearchTerm(e.target.value);
+                        searchSteamGames(e.target.value);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+              )}
               
               {showSteamGames && !noSteamGame && (
                 <div className="border rounded-md p-3 max-h-48 overflow-y-auto">
