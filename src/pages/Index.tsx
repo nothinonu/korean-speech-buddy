@@ -24,12 +24,18 @@ const Index = () => {
   useEffect(() => {
     const fetchGameCount = async () => {
       try {
-        // Mock games data와 동일한 개수로 설정
-        const mockGameCount = 6; // mockGames 배열의 길이
-        setGameCount(mockGameCount);
+        const { count, error } = await supabase
+          .from('games')
+          .select('*', { count: 'exact', head: true });
+          
+        if (error) {
+          throw error;
+        }
+        
+        setGameCount(count || 10);
       } catch (error) {
         console.log('게임 수를 불러오지 못했습니다:', error);
-        setGameCount(150); // 기본값
+        setGameCount(10); // 데이터베이스의 현재 게임 수로 기본값 설정
       }
     };
     fetchGameCount();
