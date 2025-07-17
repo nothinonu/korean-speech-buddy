@@ -15,14 +15,10 @@ interface SteamProfileModalProps {
 
 interface SteamProfileData {
   steam_id: string | null;
-  steam_profile_url: string | null;
-  steam_avatar_url: string | null;
-  steam_display_name: string | null;
-  steam_game_count: number;
-  steam_level: number;
   username: string;
   favorite_games: string[];
   play_style: string;
+  level: number;
 }
 
 export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileModalProps) => {
@@ -39,7 +35,7 @@ export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileMod
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('steam_id, steam_profile_url, steam_avatar_url, steam_display_name, steam_game_count, steam_level, username, favorite_games, play_style')
+        .select('steam_id, username, favorite_games, play_style, level')
         .eq('id', playerId)
         .single();
 
@@ -57,9 +53,7 @@ export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileMod
   };
 
   const openSteamProfile = () => {
-    if (profileData?.steam_profile_url) {
-      window.open(profileData.steam_profile_url, '_blank');
-    } else if (profileData?.steam_id) {
+    if (profileData?.steam_id) {
       window.open(`https://steamcommunity.com/profiles/${profileData.steam_id}`, '_blank');
     }
   };
@@ -105,22 +99,18 @@ export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileMod
           {/* 기본 프로필 정보 */}
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16 border-2 border-primary">
-              <AvatarImage 
-                src={profileData.steam_avatar_url || undefined} 
-                alt={profileData.username} 
-              />
               <AvatarFallback className="bg-gradient-primary text-primary-foreground">
                 {profileData.username.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <h3 className="text-xl font-semibold text-foreground">
-                {profileData.steam_display_name || profileData.username}
+                {profileData.username}
               </h3>
               <p className="text-muted-foreground">@{profileData.username}</p>
-              {profileData.steam_level > 0 && (
+              {profileData.level > 0 && (
                 <Badge variant="outline" className="mt-1 border-primary text-primary">
-                  Steam Lv.{profileData.steam_level}
+                  Lv.{profileData.level}
                 </Badge>
               )}
             </div>
@@ -138,18 +128,10 @@ export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileMod
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-card border border-border rounded-lg p-4 text-center">
-                  <Gamepad2 className="mx-auto mb-2 text-primary" size={24} />
-                  <p className="text-sm text-muted-foreground">보유 게임</p>
-                  <p className="text-xl font-semibold text-foreground">
-                    {profileData.steam_game_count}개
-                  </p>
-                </div>
-                
-                <div className="bg-card border border-border rounded-lg p-4 text-center">
                   <Users className="mx-auto mb-2 text-primary" size={24} />
-                  <p className="text-sm text-muted-foreground">Steam 레벨</p>
+                  <p className="text-sm text-muted-foreground">레벨</p>
                   <p className="text-xl font-semibold text-foreground">
-                    {profileData.steam_level}
+                    {profileData.level}
                   </p>
                 </div>
                 
