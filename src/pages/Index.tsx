@@ -22,8 +22,12 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchGameCount = async () => {
+    const loadGameData = async () => {
       try {
+        // 먼저 스팀 협동게임 불러오기
+        await loadCooperativeGames();
+        
+        // 그 다음 최신 게임 수 조회
         const { count, error } = await supabase
           .from('games')
           .select('*', { count: 'exact', head: true });
@@ -34,12 +38,53 @@ const Index = () => {
         
         setGameCount(count || 10);
       } catch (error) {
-        console.log('게임 수를 불러오지 못했습니다:', error);
-        setGameCount(10); // 데이터베이스의 현재 게임 수로 기본값 설정
+        console.log('게임 데이터를 불러오지 못했습니다:', error);
+        setGameCount(10);
       }
     };
-    fetchGameCount();
+    loadGameData();
   }, []);
+
+  const loadCooperativeGames = async () => {
+    try {
+      const { data: steamGameData, error } = await supabase.functions.invoke('steam-games', {
+        body: { loadCoopGames: true }
+      });
+      
+      if (error) {
+        console.error('협동게임 불러오기에 실패했습니다:', error);
+      } else if (steamGameData && steamGameData.length > 0) {
+        // 스팀에서 가져온 협동게임들을 데이터베이스에 저장
+        const gameInserts = steamGameData.map((game: any) => ({
+          name: game.name,
+          description: game.description || '',
+          image_url: game.imageUrl || null,
+          steam_app_id: game.steamAppId,
+          player_count: game.playerCount,
+          is_cooperative: true,
+          tags: game.tags || [],
+          created_by: null
+        }));
+
+        // 기존에 동일한 steam_app_id가 있는지 확인하고 없는 것만 추가
+        for (const gameData of gameInserts) {
+          if (gameData.steam_app_id) {
+            const { data: existingGame } = await supabase
+              .from('games')
+              .select('id')
+              .eq('steam_app_id', gameData.steam_app_id)
+              .maybeSingle();
+            
+            if (!existingGame) {
+              await supabase.from('games').insert([gameData]);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('협동게임 불러오기에 실패했습니다:', error);
+    }
+  };
 
   // Mock data for demonstration
   const mockGames = [
