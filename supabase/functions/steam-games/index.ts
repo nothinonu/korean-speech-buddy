@@ -329,8 +329,8 @@ serve(async (req) => {
         1172470 // Apex Legends
       ];
       
-      // Create app objects for these known cooperative games
-      filteredApps = coopGameAppIds.slice(0, 30).map(appid => ({ appid, name: '' }));
+      // Create app objects for these known cooperative games - use all app IDs
+      filteredApps = coopGameAppIds.map(appid => ({ appid, name: '' }));
     } else if (searchTerm.trim()) {
       // Get list of Steam apps
       const appsResponse = await fetch('https://api.steampowered.com/ISteamApps/GetAppList/v2/')
