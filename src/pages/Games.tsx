@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Header } from '@/components/Header';
 import { Plus, Search, Users, Star, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -33,6 +34,9 @@ const Games = () => {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [steamGames, setSteamGames] = useState<Game[]>([]);
+  const [showSteamGames, setShowSteamGames] = useState(false);
+  const [noSteamGame, setNoSteamGame] = useState(false);
   const [gameForm, setGameForm] = useState({
     name: '',
     description: '',
@@ -150,6 +154,27 @@ const Games = () => {
       tags: '',
       steamAppId: ''
     });
+  };
+
+  const fetchSteamGames = async () => {
+    try {
+      setShowSteamGames(false);
+      const { data: steamGameData, error } = await supabase.functions.invoke('steam-games');
+      
+      if (error) {
+        console.error('스팀 게임 목록을 불러오는데 실패했습니다:', error);
+        setSteamGames(mockGames);
+      } else if (steamGameData) {
+        setSteamGames(steamGameData);
+      } else {
+        setSteamGames(mockGames);
+      }
+      setShowSteamGames(true);
+    } catch (error) {
+      console.error('스팀 게임 목록을 불러오는데 실패했습니다:', error);
+      setSteamGames(mockGames);
+      setShowSteamGames(true);
+    }
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -291,13 +316,61 @@ const Games = () => {
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">게임 이름 *</Label>
-              <Input
-                id="name"
-                value={gameForm.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="게임 이름을 입력하세요"
-                required
-              />
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={fetchSteamGames}
+                  className="flex-1"
+                >
+                  스팀에서 찾아보기
+                </Button>
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="noSteamGame"
+                    checked={noSteamGame}
+                    onCheckedChange={(checked) => setNoSteamGame(!!checked)}
+                  />
+                  <Label htmlFor="noSteamGame" className="text-sm">찾는 게임이 없어요</Label>
+                </div>
+              </div>
+              
+              {showSteamGames && !noSteamGame && (
+                <div className="border rounded-md p-3 max-h-48 overflow-y-auto">
+                  <div className="space-y-2">
+                    {steamGames.map((game) => (
+                      <div
+                        key={game.id}
+                        className="flex items-center justify-between p-2 hover:bg-muted rounded cursor-pointer"
+                        onClick={() => {
+                          handleInputChange('name', game.name);
+                          handleInputChange('description', game.description || '');
+                          handleInputChange('imageUrl', game.imageUrl || '');
+                          handleInputChange('steamAppId', game.steamAppId);
+                          setShowSteamGames(false);
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          {game.imageUrl && (
+                            <img src={game.imageUrl} alt={game.name} className="w-8 h-8 rounded" />
+                          )}
+                          <span className="text-sm">{game.name}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {noSteamGame && (
+                <Input
+                  id="name"
+                  value={gameForm.name}
+                  onChange={(e) => handleInputChange('name', e.target.value)}
+                  placeholder="게임 이름을 입력하세요"
+                  required
+                />
+              )}
             </div>
 
             <div className="space-y-2">
