@@ -64,8 +64,19 @@ export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileMod
     }
   };
 
+  const validateSteamId = (steamId: string): boolean => {
+    // Steam ID 64-bit 형식 검증 (17자리 숫자)
+    const steamId64Regex = /^7656119[0-9]{10}$/;
+    return steamId64Regex.test(steamId);
+  };
+
   const syncSteamProfile = async () => {
     if (!profileData?.steam_id) return;
+    
+    if (!validateSteamId(profileData.steam_id)) {
+      console.error('유효하지 않은 Steam ID 형식입니다.');
+      return;
+    }
     
     try {
       setLoading(true);

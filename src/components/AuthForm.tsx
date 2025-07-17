@@ -38,11 +38,36 @@ export const AuthForm = ({ onClose }: AuthFormProps) => {
     }
   };
 
+  const validatePassword = (password: string): string | null => {
+    if (password.length < 8) {
+      return "비밀번호는 최소 8자 이상이어야 합니다.";
+    }
+    if (!/(?=.*[a-z])/.test(password)) {
+      return "비밀번호에 소문자가 포함되어야 합니다.";
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      return "비밀번호에 대문자가 포함되어야 합니다.";
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      return "비밀번호에 숫자가 포함되어야 합니다.";
+    }
+    if (!/(?=.*[!@#$%^&*])/.test(password)) {
+      return "비밀번호에 특수문자(!@#$%^&*)가 포함되어야 합니다.";
+    }
+    return null;
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (signupForm.password !== signupForm.confirmPassword) {
       alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    const passwordError = validatePassword(signupForm.password);
+    if (passwordError) {
+      alert(passwordError);
       return;
     }
     

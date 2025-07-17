@@ -4,6 +4,10 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Content-Security-Policy": "default-src 'self'",
+  "X-Frame-Options": "DENY",
+  "X-Content-Type-Options": "nosniff",
+  "Referrer-Policy": "strict-origin-when-cross-origin",
 };
 
 serve(async (req) => {
@@ -33,6 +37,18 @@ serve(async (req) => {
     if (!steamId) {
       return new Response(
         JSON.stringify({ error: "Steam ID is required" }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        }
+      );
+    }
+
+    // Steam ID 형식 검증
+    const steamId64Regex = /^7656119[0-9]{10}$/;
+    if (!steamId64Regex.test(steamId)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid Steam ID format" }),
         { 
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" }
