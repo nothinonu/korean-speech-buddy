@@ -263,6 +263,19 @@ const Games = () => {
 
   const loadCooperativeGames = async () => {
     try {
+      // 현재 게임 수 확인
+      const { count } = await supabase
+        .from('games')
+        .select('*', { count: 'exact', head: true });
+
+      if ((count || 0) >= 30) {
+        toast({
+          title: "게임 로드 완료",
+          description: "이미 충분한 게임이 있습니다.",
+        });
+        return;
+      }
+
       // 미리 준비된 협동게임 데이터
       const cooperativeGames = [
         { name: "It Takes Two", description: "협동 액션 어드벤처 게임", steam_app_id: 1426210, player_count: "2명" },
