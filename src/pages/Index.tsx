@@ -7,11 +7,19 @@ import { GameCard } from "@/components/GameCard";
 import { PlayerProfile } from "@/components/PlayerProfile";
 import { GameChannels } from "@/components/GameChannels";
 import { AdBanner } from "@/components/AdBanner";
+import { Header } from "@/components/Header";
 import { Search, Gamepad2, Users, MessageSquare } from "lucide-react";
 import heroImage from "@/assets/gaming-hero.jpg";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Mock user state - TODO: Replace with real Supabase auth
+  const [user, setUser] = useState<any>(null);
+  
+  const handleLogout = () => {
+    setUser(null);
+  };
 
   // Mock data for demonstration
   const mockGames = [
@@ -101,6 +109,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background relative">
+      {/* Header */}
+      <Header user={user} onLogout={handleLogout} />
       {/* Left Ad Banner */}
       <div className="hidden xl:block">
         <div className="left-0">
