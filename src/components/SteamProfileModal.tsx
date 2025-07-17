@@ -64,6 +64,29 @@ export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileMod
     }
   };
 
+  const syncSteamProfile = async () => {
+    if (!profileData?.steam_id) return;
+    
+    try {
+      setLoading(true);
+      const { data, error } = await supabase.functions.invoke('sync-steam-profile', {
+        body: { steam_id: profileData.steam_id }
+      });
+      
+      if (error) {
+        console.error('Steam 프로필 동기화 오류:', error);
+        return;
+      }
+      
+      // 동기화 후 프로필 데이터 다시 가져오기
+      await fetchPlayerProfile();
+    } catch (error) {
+      console.error('Steam 프로필 동기화 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
