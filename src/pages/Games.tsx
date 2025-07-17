@@ -54,6 +54,7 @@ const Games = () => {
 
   useEffect(() => {
     fetchGames();
+    loadCooperativeGames();
   }, []);
 
   useEffect(() => {
