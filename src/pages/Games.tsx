@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Header } from '@/components/Header';
 import { Plus, Search, Users, Star, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ScrollToTop from '@/components/ScrollToTop';
 
 interface Game {
   id: string;
@@ -181,6 +182,7 @@ const Games = () => {
           </div>
         )}
       </div>
+      <ScrollToTop />
     </div>
   );
 };

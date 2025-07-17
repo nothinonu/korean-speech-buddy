@@ -9,6 +9,7 @@ import { GameChannels } from "@/components/GameChannels";
 import { AdBanner } from "@/components/AdBanner";
 import { Header } from "@/components/Header";
 import { AuthProvider } from "@/hooks/useAuth";
+import ScrollToTop from "@/components/ScrollToTop";
 import { Toaster } from "@/components/ui/toaster";
 import { Search, Gamepad2, Users, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -297,6 +298,7 @@ const Index = () => {
         </div>
         </div>
       </div>
+      <ScrollToTop />
       <Toaster />
     </AuthProvider>
   );
