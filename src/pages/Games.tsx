@@ -281,7 +281,7 @@ const Games = () => {
           title: "충분한 게임이 있습니다",
           description: "이미 100개 이상의 게임이 데이터베이스에 있습니다.",
         });
-        setIsLoading(false);
+        setLoading(false);
         return;
       }
 
@@ -299,50 +299,6 @@ const Games = () => {
         { name: "Among Us", description: "소셜 추론 게임", steam_app_id: 945360, player_count: "4-15명", image: "https://images.unsplash.com/photo-1527576539890-dfa815648363?w=400&h=300&fit=crop" },
         { name: "Phasmophobia", description: "유령 수사 협동 공포게임", steam_app_id: 739630, player_count: "1-4명", image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=400&h=300&fit=crop" },
         { name: "Human: Fall Flat", description: "물리 기반 퍼즐 플랫포머", steam_app_id: 477160, player_count: "1-8명", image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=300&fit=crop" }
-      ];
-
-      // 배치로 데이터베이스에 추가
-      const batchSize = 20;
-      for (let i = 0; i < cooperativeGames.length; i += batchSize) {
-        const batch = cooperativeGames.slice(i, i + batchSize);
-        
-        const gamesToInsert = batch.map(game => ({
-          name: game.name,
-          description: game.description,
-          image_url: game.image,
-          steam_app_id: game.steam_app_id,
-          player_count: game.player_count,
-          is_cooperative: true,
-          tags: ['협동', '멀티플레이어'],
-          created_by: null
-        }));
-
-        const { error } = await supabase
-          .from('games')
-          .insert(gamesToInsert);
-
-        if (error) {
-          console.error(`배치 ${Math.floor(i/batchSize) + 1} 추가 오류:`, error);
-        }
-      }
-
-      toast({
-        title: "협동 게임 추가 완료",
-        description: `${cooperativeGames.length}개의 협동 게임이 추가되었습니다.`,
-      });
-
-      fetchGames();
-    } catch (error) {
-      console.error('협동 게임 추가 중 오류:', error);
-      toast({
-        title: "게임 추가 실패",
-        description: "협동 게임을 추가하는데 실패했습니다.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
       ];
 
       // 배치로 데이터베이스에 추가
