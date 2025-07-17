@@ -85,20 +85,10 @@ const Games = () => {
   const fetchGames = async () => {
     try {
       setLoading(true);
-      // Fetch Steam games using Supabase client
-      const { data: steamGames, error } = await supabase.functions.invoke('steam-games');
-      
-      if (error) {
-        console.error('Steam API 호출 오류:', error);
-        setGames(mockGames);
-      } else if (steamGames) {
-        setGames(steamGames);
-      } else {
-        setGames(mockGames);
-      }
+      // 초기 로드시 목업 게임 데이터 표시
+      setGames(mockGames);
     } catch (error) {
       console.error('게임 목록을 불러오는데 실패했습니다:', error);
-      // Load mock data as fallback
       setGames(mockGames);
     } finally {
       setLoading(false);
