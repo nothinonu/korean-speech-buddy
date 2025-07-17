@@ -1,0 +1,207 @@
+import { useState, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { ExternalLink, Gamepad2, Users, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface SteamProfileModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  playerId: string;
+}
+
+interface SteamProfileData {
+  steam_id: string | null;
+  steam_profile_url: string | null;
+  steam_avatar_url: string | null;
+  steam_display_name: string | null;
+  steam_game_count: number;
+  steam_level: number;
+  username: string;
+  favorite_games: string[];
+  play_style: string;
+}
+
+export const SteamProfileModal = ({ isOpen, onClose, playerId }: SteamProfileModalProps) => {
+  const [profileData, setProfileData] = useState<SteamProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen && playerId) {
+      fetchPlayerProfile();
+    }
+  }, [isOpen, playerId]);
+
+  const fetchPlayerProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('steam_id, steam_profile_url, steam_avatar_url, steam_display_name, steam_game_count, steam_level, username, favorite_games, play_style')
+        .eq('id', playerId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return;
+      }
+
+      setProfileData(data);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openSteamProfile = () => {
+    if (profileData?.steam_profile_url) {
+      window.open(profileData.steam_profile_url, '_blank');
+    } else if (profileData?.steam_id) {
+      window.open(`https://steamcommunity.com/profiles/${profileData.steam_id}`, '_blank');
+    }
+  };
+
+  const addSteamFriend = () => {
+    if (profileData?.steam_id) {
+      window.open(`steam://friends/add/${profileData.steam_id}`, '_blank');
+    }
+  };
+
+  if (loading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="bg-background border-border">
+          <div className="flex items-center justify-center p-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  if (!profileData) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="bg-background border-border">
+          <div className="text-center p-8">
+            <p className="text-muted-foreground">프로필을 찾을 수 없습니다.</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="bg-background border-border max-w-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-foreground">플레이어 프로필</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* 기본 프로필 정보 */}
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary">
+              <AvatarImage 
+                src={profileData.steam_avatar_url || undefined} 
+                alt={profileData.username} 
+              />
+              <AvatarFallback className="bg-gradient-primary text-primary-foreground">
+                {profileData.username.slice(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold text-foreground">
+                {profileData.steam_display_name || profileData.username}
+              </h3>
+              <p className="text-muted-foreground">@{profileData.username}</p>
+              {profileData.steam_level > 0 && (
+                <Badge variant="outline" className="mt-1 border-primary text-primary">
+                  Steam Lv.{profileData.steam_level}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Steam 정보 */}
+          {profileData.steam_id ? (
+            <div className="space-y-4">
+              <h4 className="text-lg font-medium text-foreground flex items-center gap-2">
+                <Gamepad2 size={20} className="text-primary" />
+                Steam 프로필
+              </h4>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-card border border-border rounded-lg p-4 text-center">
+                  <Gamepad2 className="mx-auto mb-2 text-primary" size={24} />
+                  <p className="text-sm text-muted-foreground">보유 게임</p>
+                  <p className="text-xl font-semibold text-foreground">
+                    {profileData.steam_game_count}개
+                  </p>
+                </div>
+                
+                <div className="bg-card border border-border rounded-lg p-4 text-center">
+                  <Users className="mx-auto mb-2 text-primary" size={24} />
+                  <p className="text-sm text-muted-foreground">Steam 레벨</p>
+                  <p className="text-xl font-semibold text-foreground">
+                    {profileData.steam_level}
+                  </p>
+                </div>
+                
+                <div className="bg-card border border-border rounded-lg p-4 text-center">
+                  <Clock className="mx-auto mb-2 text-primary" size={24} />
+                  <p className="text-sm text-muted-foreground">플레이 스타일</p>
+                  <Badge className="bg-gradient-cyber text-accent-foreground">
+                    {profileData.play_style}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button 
+                  onClick={addSteamFriend}
+                  className="flex-1 bg-gradient-accent hover:shadow-glow"
+                >
+                  <Users size={16} className="mr-2" />
+                  Steam 친구 추가
+                </Button>
+                <Button 
+                  onClick={openSteamProfile}
+                  variant="outline"
+                  className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                >
+                  <ExternalLink size={16} className="mr-2" />
+                  Steam 프로필 보기
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Gamepad2 className="mx-auto mb-4 text-muted-foreground" size={48} />
+              <p className="text-muted-foreground">Steam 프로필이 연동되지 않았습니다.</p>
+            </div>
+          )}
+
+          <Separator />
+
+          {/* 선호 게임 */}
+          <div>
+            <h4 className="text-lg font-medium text-foreground mb-3">선호 게임</h4>
+            <div className="flex flex-wrap gap-2">
+              {profileData.favorite_games?.map((game, index) => (
+                <Badge key={index} variant="secondary" className="text-sm">
+                  {game}
+                </Badge>
+              )) || <p className="text-muted-foreground">등록된 선호 게임이 없습니다.</p>}
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
