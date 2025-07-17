@@ -24,15 +24,12 @@ const Index = () => {
   useEffect(() => {
     const fetchGameCount = async () => {
       try {
-        const { data: games, error } = await supabase.functions.invoke('steam-games');
-        
-        if (error) {
-          console.log('게임 수를 불러오지 못했습니다:', error);
-        } else if (games) {
-          setGameCount(games.length);
-        }
+        // Mock games data와 동일한 개수로 설정
+        const mockGameCount = 6; // mockGames 배열의 길이
+        setGameCount(mockGameCount);
       } catch (error) {
         console.log('게임 수를 불러오지 못했습니다:', error);
+        setGameCount(150); // 기본값
       }
     };
     fetchGameCount();
