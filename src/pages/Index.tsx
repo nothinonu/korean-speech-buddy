@@ -11,10 +11,12 @@ import { Header } from "@/components/Header";
 import { AuthProvider } from "@/hooks/useAuth";
 import { Toaster } from "@/components/ui/toaster";
 import { Search, Gamepad2, Users, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/gaming-hero.jpg";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   // Mock data for demonstration
   const mockGames = [
@@ -204,7 +206,10 @@ const Index = () => {
       {/* Stats Section */}
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <Card className="bg-card border-border text-center hover:shadow-glow transition-all">
+          <Card 
+            className="bg-card border-border text-center hover:shadow-glow transition-all cursor-pointer"
+            onClick={() => navigate('/games')}
+          >
             <CardContent className="pt-6">
               <Gamepad2 size={32} className="mx-auto mb-4 text-primary" />
               <h3 className="text-2xl font-bold text-foreground">150+</h3>
