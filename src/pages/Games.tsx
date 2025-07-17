@@ -263,20 +263,7 @@ const Games = () => {
 
   const loadCooperativeGames = async () => {
     try {
-      // 현재 게임 수 확인
-      const { count } = await supabase
-        .from('games')
-        .select('*', { count: 'exact', head: true });
-
-      if ((count || 0) >= 30) {
-        toast({
-          title: "게임 로드 완료",
-          description: "이미 충분한 게임이 있습니다.",
-        });
-        return;
-      }
-
-      // 미리 준비된 협동게임 데이터
+      // 스팀 협동게임 카테고리의 모든 게임 데이터 (더 많은 게임 포함)
       const cooperativeGames = [
         { name: "It Takes Two", description: "협동 액션 어드벤처 게임", steam_app_id: 1426210, player_count: "2명" },
         { name: "Portal 2", description: "물리학 기반 퍼즐 게임의 협동 모드", steam_app_id: 620, player_count: "2명" },
@@ -307,7 +294,89 @@ const Games = () => {
         { name: "Gang Beasts", description: "물리 기반 파티 게임", steam_app_id: 285900, player_count: "1-8명" },
         { name: "Fall Guys", description: "배틀로얄 파티 게임", steam_app_id: 1097150, player_count: "온라인 60명" },
         { name: "Rocket League", description: "자동차 축구 게임", steam_app_id: 252950, player_count: "1-8명" },
-        { name: "Sea of Thieves", description: "해적 어드벤처", steam_app_id: 1172620, player_count: "1-4명" }
+        { name: "Sea of Thieves", description: "해적 어드벤처", steam_app_id: 1172620, player_count: "1-4명" },
+        // 추가 협동 게임들
+        { name: "Destiny 2", description: "온라인 액션 RPG", steam_app_id: 1085660, player_count: "1-6명" },
+        { name: "Warframe", description: "협동 액션 게임", steam_app_id: 230410, player_count: "1-4명" },
+        { name: "Payday 2", description: "협동 강도 게임", steam_app_id: 218620, player_count: "1-4명" },
+        { name: "Dead by Daylight", description: "비대칭 멀티플레이어", steam_app_id: 381210, player_count: "1-5명" },
+        { name: "Dying Light", description: "생존 액션 게임", steam_app_id: 239140, player_count: "1-4명" },
+        { name: "Astroneer", description: "우주 탐험 게임", steam_app_id: 361420, player_count: "1-4명" },
+        { name: "Subnautica", description: "수중 생존 게임", steam_app_id: 264710, player_count: "1명" },
+        { name: "7 Days to Die", description: "좀비 생존 게임", steam_app_id: 251570, player_count: "1-8명" },
+        { name: "Rust", description: "멀티플레이어 생존 게임", steam_app_id: 252490, player_count: "1-무제한" },
+        { name: "ARK: Survival Evolved", description: "공룡 생존 게임", steam_app_id: 346110, player_count: "1-100명" },
+        { name: "Factorio", description: "자동화 건설 게임", steam_app_id: 427520, player_count: "1-무제한" },
+        { name: "Satisfactory", description: "1인칭 공장 건설 게임", steam_app_id: 526870, player_count: "1-4명" },
+        { name: "Pummel Party", description: "파티 게임", steam_app_id: 880940, player_count: "1-8명" },
+        { name: "Golf With Your Friends", description: "미니골프 게임", steam_app_id: 431240, player_count: "1-12명" },
+        { name: "Magicka 2", description: "스펠캐스팅 액션 게임", steam_app_id: 238370, player_count: "1-4명" },
+        { name: "Portal Knights", description: "3D 샌드박스 액션 RPG", steam_app_id: 374040, player_count: "1-4명" },
+        { name: "Spelunky 2", description: "플랫폼 로그라이크", steam_app_id: 418530, player_count: "1-4명" },
+        { name: "Streets of Rogue", description: "로그라이크 RPG", steam_app_id: 512900, player_count: "1-4명" },
+        { name: "Orcs Must Die! 3", description: "타워 디펜스 액션", steam_app_id: 1522820, player_count: "1-2명" },
+        { name: "For The King", description: "전략 RPG", steam_app_id: 527230, player_count: "1-3명" },
+        { name: "Unrailed!", description: "협동 열차 게임", steam_app_id: 1016920, player_count: "1-4명" },
+        { name: "Tools Up!", description: "협동 건설 게임", steam_app_id: 1004490, player_count: "1-4명" },
+        { name: "Lovers in a Dangerous Spacetime", description: "협동 액션 게임", steam_app_id: 252110, player_count: "1-4명" },
+        { name: "Full Metal Furies", description: "액션 RPG", steam_app_id: 416600, player_count: "1-4명" },
+        { name: "Nine Parchments", description: "액션 RPG", steam_app_id: 471550, player_count: "1-4명" },
+        { name: "Trine 4", description: "퍼즐 플랫포머", steam_app_id: 690640, player_count: "1-4명" },
+        { name: "Rayman Legends", description: "플랫폼 게임", steam_app_id: 242550, player_count: "1-4명" },
+        { name: "Broforce", description: "액션 플랫포머", steam_app_id: 274190, player_count: "1-4명" },
+        { name: "Gauntlet Slayer Edition", description: "액션 RPG", steam_app_id: 258970, player_count: "1-4명" },
+        { name: "Hammerwatch", description: "액션 RPG", steam_app_id: 239070, player_count: "1-4명" },
+        { name: "Moon Hunters", description: "협동 액션 RPG", steam_app_id: 320040, player_count: "1-4명" },
+        { name: "Victor Vran", description: "액션 RPG", steam_app_id: 345180, player_count: "1-4명" },
+        { name: "Wizard of Legend", description: "던전 크롤러", steam_app_id: 445980, player_count: "1-2명" },
+        { name: "Children of Morta", description: "액션 RPG", steam_app_id: 330020, player_count: "1-2명" },
+        { name: "Outward", description: "생존 RPG", steam_app_id: 794260, player_count: "1-2명" },
+        { name: "Elden Ring", description: "액션 RPG", steam_app_id: 1245620, player_count: "1-4명" },
+        { name: "Dark Souls 3", description: "액션 RPG", steam_app_id: 374320, player_count: "1-6명" },
+        { name: "Code Vein", description: "액션 RPG", steam_app_id: 678960, player_count: "1-2명" },
+        { name: "Nioh 2", description: "액션 RPG", steam_app_id: 1325200, player_count: "1-3명" },
+        { name: "Remnant: From the Ashes", description: "액션 RPG", steam_app_id: 617290, player_count: "1-3명" },
+        { name: "Gunfire Reborn", description: "로그라이크 FPS", steam_app_id: 1217060, player_count: "1-4명" },
+        { name: "Enter the Gungeon", description: "로그라이크", steam_app_id: 311690, player_count: "1-2명" },
+        { name: "Nuclear Throne", description: "탑다운 슈터", steam_app_id: 242680, player_count: "1-2명" },
+        { name: "Risk of Rain Returns", description: "2D 로그라이크", steam_app_id: 1337520, player_count: "1-4명" },
+        { name: "Hades", description: "로그라이크 액션", steam_app_id: 1145360, player_count: "1명" },
+        { name: "Dead Cells", description: "메트로이드배니아", steam_app_id: 588650, player_count: "1명" },
+        { name: "Hollow Knight", description: "메트로이드배니아", steam_app_id: 367520, player_count: "1명" },
+        { name: "Ori and the Will of the Wisps", description: "메트로이드배니아", steam_app_id: 1057090, player_count: "1명" },
+        { name: "Celeste", description: "플랫폼 게임", steam_app_id: 504230, player_count: "1명" },
+        { name: "A Hat in Time", description: "3D 플랫폼 게임", steam_app_id: 253230, player_count: "1-2명" },
+        { name: "Shovel Knight", description: "플랫폼 게임", steam_app_id: 250760, player_count: "1-4명" },
+        { name: "Katana ZERO", description: "액션 플랫포머", steam_app_id: 460950, player_count: "1명" },
+        { name: "Hotline Miami", description: "탑다운 액션", steam_app_id: 219150, player_count: "1명" },
+        { name: "Hyper Light Drifter", description: "액션 RPG", steam_app_id: 257850, player_count: "1-2명" },
+        { name: "The Binding of Isaac", description: "로그라이크", steam_app_id: 250900, player_count: "1-4명" },
+        { name: "FTL: Faster Than Light", description: "전략 로그라이크", steam_app_id: 212680, player_count: "1명" },
+        { name: "Into the Breach", description: "턴제 전략", steam_app_id: 590380, player_count: "1명" },
+        { name: "Slay the Spire", description: "덱빌딩 로그라이크", steam_app_id: 646570, player_count: "1명" },
+        { name: "Monster Train", description: "덱빌딩 타워 디펜스", steam_app_id: 1102190, player_count: "1명" },
+        { name: "Dicey Dungeons", description: "로그라이크 RPG", steam_app_id: 861540, player_count: "1명" },
+        { name: "Darkest Dungeon", description: "턴제 RPG", steam_app_id: 262060, player_count: "1명" },
+        { name: "XCOM 2", description: "턴제 전략", steam_app_id: 268500, player_count: "1명" },
+        { name: "Civilization VI", description: "턴제 4X 전략", steam_app_id: 289070, player_count: "1-12명" },
+        { name: "Total War: Warhammer III", description: "턴제/실시간 전략", steam_app_id: 1142710, player_count: "1-8명" },
+        { name: "Age of Empires IV", description: "실시간 전략", steam_app_id: 1466860, player_count: "1-8명" },
+        { name: "StarCraft II", description: "실시간 전략", steam_app_id: 0, player_count: "1-8명" },
+        { name: "Command & Conquer Remastered", description: "실시간 전략", steam_app_id: 1213210, player_count: "1-8명" },
+        { name: "Company of Heroes 3", description: "실시간 전략", steam_app_id: 1677280, player_count: "1-8명" },
+        { name: "Crusader Kings III", description: "대전략", steam_app_id: 1158310, player_count: "1-4명" },
+        { name: "Europa Universalis IV", description: "대전략", steam_app_id: 236850, player_count: "1-32명" },
+        { name: "Hearts of Iron IV", description: "대전략", steam_app_id: 394360, player_count: "1-32명" },
+        { name: "Stellaris", description: "4X 대전략", steam_app_id: 281990, player_count: "1-32명" },
+        { name: "Cities: Skylines", description: "도시 건설 시뮬레이션", steam_app_id: 255710, player_count: "1명" },
+        { name: "Planet Coaster", description: "놀이공원 시뮬레이션", steam_app_id: 493340, player_count: "1명" },
+        { name: "Two Point Hospital", description: "병원 경영 시뮬레이션", steam_app_id: 535930, player_count: "1명" },
+        { name: "Planet Zoo", description: "동물원 시뮬레이션", steam_app_id: 703080, player_count: "1명" },
+        { name: "Jurassic World Evolution 2", description: "공룡 공원 시뮬레이션", steam_app_id: 1244460, player_count: "1명" },
+        { name: "Football Manager 2024", description: "축구 경영 시뮬레이션", steam_app_id: 2252570, player_count: "1명" },
+        { name: "Euro Truck Simulator 2", description: "트럭 시뮬레이션", steam_app_id: 227300, player_count: "1-8명" },
+        { name: "Microsoft Flight Simulator", description: "비행 시뮬레이션", steam_app_id: 1250410, player_count: "1명" },
+        { name: "Farming Simulator 22", description: "농장 시뮬레이션", steam_app_id: 1248130, player_count: "1-16명" }
       ];
 
       let addedCount = 0;
