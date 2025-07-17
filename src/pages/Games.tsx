@@ -30,6 +30,7 @@ interface Game {
 
 const Games = () => {
   const [games, setGames] = useState<Game[]>([]);
+  const [visibleGames, setVisibleGames] = useState<Game[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
@@ -95,6 +96,7 @@ const Games = () => {
       if (error) {
         console.error('게임 목록을 불러오는데 실패했습니다:', error);
         setGames(mockGames);
+        setVisibleGames(mockGames.slice(0, 30));
       } else {
         // 데이터베이스 형태를 컴포넌트에서 사용하는 형태로 변환
         const formattedGames = dbGames.map(game => ({
@@ -109,19 +111,32 @@ const Games = () => {
           tags: game.tags || []
         }));
         setGames(formattedGames);
+        // 처음 30개만 표시
+        setVisibleGames(formattedGames.slice(0, 30));
       }
     } catch (error) {
       console.error('게임 목록을 불러오는데 실패했습니다:', error);
       setGames(mockGames);
+      setVisibleGames(mockGames.slice(0, 30));
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredGames = games.filter(game =>
-    game.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    game.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredGames = searchTerm 
+    ? games.filter(game =>
+        game.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        game.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+      ) 
+    : visibleGames;
+
+  const loadMoreGames = () => {
+    const currentLength = visibleGames.length;
+    const nextGames = games.slice(0, currentLength + 30);
+    setVisibleGames(nextGames);
+  };
+
+  const canLoadMore = visibleGames.length < games.length && !searchTerm;
 
   const addCustomGame = () => {
     // 로그인 확인
@@ -327,14 +342,27 @@ const Games = () => {
         </div>
 
         {/* Search */}
-        <div className="relative mb-8">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
-          <Input
-            placeholder="게임 이름 또는 태그로 검색..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="relative mb-8 flex flex-col md:flex-row gap-2 items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
+            <Input
+              placeholder="게임 이름 또는 태그로 검색..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-full"
+            />
+          </div>
+          {searchTerm && (
+            <div className="mt-2 md:mt-0">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSearchTerm('')}
+              >
+                검색 초기화
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Games Grid */}
@@ -407,27 +435,35 @@ const Games = () => {
                     ))}
                   </div>
 
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
-                      매칭 찾기
-                    </Button>
-                    {game.steamAppId && (
-                      <Button size="sm" variant="outline" className="p-2">
-                        <ExternalLink size={16} />
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                   <div className="flex gap-2">
+                     <Button size="sm" className="flex-1">
+                       매칭 찾기
+                     </Button>
+                     {game.steamAppId && (
+                       <Button size="sm" variant="outline" className="p-2">
+                         <ExternalLink size={16} />
+                       </Button>
+                     )}
+                   </div>
+                 </CardContent>
+               </Card>
+             ))}
+           </div>
+         )}
 
-        {filteredGames.length === 0 && !loading && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">검색 결과가 없습니다.</p>
-          </div>
-        )}
+         {filteredGames.length === 0 && !loading && (
+           <div className="text-center py-12">
+             <p className="text-muted-foreground">검색 결과가 없습니다.</p>
+           </div>
+         )}
+         
+         {canLoadMore && (
+           <div className="flex justify-center mt-8">
+             <Button onClick={loadMoreGames} variant="outline" className="animate-pulse">
+               더 많은 게임 보기 ({visibleGames.length}/{games.length})
+             </Button>
+           </div>
+         )}
       </div>
 
       {/* 게임 추가 모달 */}

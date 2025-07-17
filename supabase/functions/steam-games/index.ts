@@ -397,7 +397,7 @@ serve(async (req) => {
         }
         
         // Add delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise(resolve => setTimeout(resolve, 200))
       } catch (error) {
         console.error(`Failed to fetch details for app ${app.appid}:`, error)
       }
