@@ -3,6 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Gamepad2, MessageCircle, UserPlus } from "lucide-react";
+import { useState } from "react";
+import { SteamProfileModal } from "./SteamProfileModal";
 
 interface PlayerProfileProps {
   player: {
@@ -19,7 +21,10 @@ interface PlayerProfileProps {
 }
 
 export const PlayerProfile = ({ player }: PlayerProfileProps) => {
+  const [showSteamProfile, setShowSteamProfile] = useState(false);
+
   return (
+    <>
     <Card className="bg-card border-border hover:shadow-card transition-all duration-300">
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
@@ -72,12 +77,24 @@ export const PlayerProfile = ({ player }: PlayerProfileProps) => {
             <MessageCircle size={14} className="mr-1" />
             매칭 요청
           </Button>
-          <Button size="sm" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+          <Button 
+            size="sm" 
+            variant="outline" 
+            className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            onClick={() => setShowSteamProfile(true)}
+          >
             <UserPlus size={14} className="mr-1" />
             프로필 보기
           </Button>
         </div>
       </CardContent>
     </Card>
+    
+    <SteamProfileModal 
+      isOpen={showSteamProfile}
+      onClose={() => setShowSteamProfile(false)}
+      playerId={player.id}
+    />
+    </>
   );
 };

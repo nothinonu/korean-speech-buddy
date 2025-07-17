@@ -25,7 +25,13 @@ export type Database = {
           is_premium: boolean | null
           level: number | null
           play_style: string | null
+          steam_avatar_url: string | null
+          steam_display_name: string | null
+          steam_game_count: number | null
           steam_id: string | null
+          steam_last_sync: string | null
+          steam_level: number | null
+          steam_profile_url: string | null
           updated_at: string
           username: string
         }
@@ -39,7 +45,13 @@ export type Database = {
           is_premium?: boolean | null
           level?: number | null
           play_style?: string | null
+          steam_avatar_url?: string | null
+          steam_display_name?: string | null
+          steam_game_count?: number | null
           steam_id?: string | null
+          steam_last_sync?: string | null
+          steam_level?: number | null
+          steam_profile_url?: string | null
           updated_at?: string
           username: string
         }
@@ -53,7 +65,13 @@ export type Database = {
           is_premium?: boolean | null
           level?: number | null
           play_style?: string | null
+          steam_avatar_url?: string | null
+          steam_display_name?: string | null
+          steam_game_count?: number | null
           steam_id?: string | null
+          steam_last_sync?: string | null
+          steam_level?: number | null
+          steam_profile_url?: string | null
           updated_at?: string
           username?: string
         }
