@@ -19,6 +19,7 @@ export default {
 		},
     extend: {
       fontFamily: {
+        'sans': ['IBM Plex Sans KR', 'sans-serif'],
         'gaming': ['Orbitron', 'monospace'],
         'modern': ['Exo 2', 'sans-serif'],
         'korean': ['IBM Plex Sans KR', 'sans-serif'],
