@@ -14,6 +14,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Search, Gamepad2, Users, MessageSquare } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/gaming-hero.jpg";
+import { supabase } from '@/integrations/supabase/client';
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -23,9 +24,11 @@ const Index = () => {
   useEffect(() => {
     const fetchGameCount = async () => {
       try {
-        const response = await fetch('https://ehcuwjyvfxprnxdviflo.supabase.co/functions/v1/steam-games');
-        if (response.ok) {
-          const games = await response.json();
+        const { data: games, error } = await supabase.functions.invoke('steam-games');
+        
+        if (error) {
+          console.log('게임 수를 불러오지 못했습니다:', error);
+        } else if (games) {
           setGameCount(games.length);
         }
       } catch (error) {
