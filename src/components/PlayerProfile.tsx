@@ -68,13 +68,13 @@ export const PlayerProfile = ({ player }: PlayerProfileProps) => {
         </div>
         
         <div className="flex gap-2 pt-2">
-          <Button size="sm" className="flex-1 bg-gradient-accent">
+          <Button size="sm" className="flex-1 bg-gradient-accent hover:shadow-glow">
             <MessageCircle size={14} className="mr-1" />
-            채팅
+            매칭 요청
           </Button>
-          <Button size="sm" variant="outline" className="flex-1">
+          <Button size="sm" variant="outline" className="flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground">
             <UserPlus size={14} className="mr-1" />
-            친구추가
+            프로필 보기
           </Button>
         </div>
       </CardContent>

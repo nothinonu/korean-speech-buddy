@@ -47,25 +47,69 @@ const Index = () => {
   const mockPlayers = [
     {
       id: "1",
-      username: "GamerKR123",
-      steamId: "steamkr123",
+      username: "ProGamer_KR",
+      steamId: "progamer_kr",
       avatar: "/placeholder.svg",
-      level: 42,
-      favoriteGames: ["CS2", "발로란트", "에이펙스"],
+      level: 68,
+      favoriteGames: ["CS2", "발로란트"],
       playStyle: "경쟁적",
       isOnline: true,
-      description: "저녁 시간대 주로 플레이, 친근한 분위기 선호"
+      description: "🔥 지금 CS2 랭크 게임 함께할 분 구해요! 골드 이상 환영"
     },
     {
       id: "2",
-      username: "TeamPlayer98",
-      steamId: "teamplay98",
+      username: "FriendlyGamer",
+      steamId: "friendly_gamer",
       avatar: "/placeholder.svg",
       level: 35,
-      favoriteGames: ["롤", "오버워치", "데스티니2"],
+      favoriteGames: ["롤", "발로란트", "에이펙스"],
+      playStyle: "캐주얼",
+      isOnline: true,
+      description: "😊 재미있게 게임하실 분들! 초보도 환영합니다"
+    },
+    {
+      id: "3",
+      username: "NightOwl_Player",
+      steamId: "nightowl_player",
+      avatar: "/placeholder.svg",
+      level: 52,
+      favoriteGames: ["롤", "오버워치"],
+      playStyle: "경쟁적",
+      isOnline: true,
+      description: "🌙 밤 시간대 활동! 롤 다이아 / 오버워치 마스터"
+    },
+    {
+      id: "4",
+      username: "TeamworkFirst",
+      steamId: "teamwork_first",
+      avatar: "/placeholder.svg",
+      level: 41,
+      favoriteGames: ["CS2", "에이펙스", "데스티니2"],
+      playStyle: "팀워크",
+      isOnline: true,
+      description: "🤝 팀워크 중시! 소통 잘하시는 분들과 함께 플레이해요"
+    },
+    {
+      id: "5",
+      username: "CasualFun",
+      steamId: "casual_fun",
+      avatar: "/placeholder.svg",
+      level: 28,
+      favoriteGames: ["마인크래프트", "포트나이트"],
       playStyle: "캐주얼",
       isOnline: false,
-      description: "팀워크 중시, 재미있게 게임하실 분들 환영!"
+      description: "🎮 가볍게 즐기는 게임! 스트레스 받지 말고 재미있게"
+    },
+    {
+      id: "6",
+      username: "SkillSeeker",
+      steamId: "skill_seeker",
+      avatar: "/placeholder.svg",
+      level: 73,
+      favoriteGames: ["롤", "CS2", "발로란트"],
+      playStyle: "성장지향",
+      isOnline: true,
+      description: "📈 함께 실력 향상해요! 피드백 주고받으며 성장하실 분"
     }
   ];
 
@@ -131,23 +175,23 @@ const Index = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/60 to-background"></div>
         <div className="relative z-10 text-center space-y-6 px-4">
           <h1 className="text-5xl font-bold text-foreground mb-4">
-            한국 스팀 <span className="bg-gradient-primary bg-clip-text text-transparent">게이머 커뮤니티</span>
+            게임 메이트 <span className="bg-gradient-primary bg-clip-text text-transparent">매칭 플랫폼</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8">
-            같이 게임할 친구를 찾고, 소통하고, 함께 즐겨보세요
+            취향이 맞는 게이머를 찾아 함께 플레이하고 새로운 친구를 만나보세요
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <Input 
-                placeholder="게임 또는 플레이어 검색..."
+                placeholder="플레이어 또는 원하는 게임 검색..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 bg-card border-border"
               />
             </div>
             <Button className="bg-gradient-accent text-accent-foreground hover:shadow-glow">
-              검색
+              매칭 찾기
             </Button>
           </div>
         </div>
@@ -159,22 +203,22 @@ const Index = () => {
           <Card className="bg-card border-border text-center hover:shadow-glow transition-all">
             <CardContent className="pt-6">
               <Gamepad2 size={32} className="mx-auto mb-4 text-primary" />
-              <h3 className="text-2xl font-bold text-foreground">{mockGames.length}</h3>
-              <p className="text-muted-foreground">인기 게임</p>
+              <h3 className="text-2xl font-bold text-foreground">150+</h3>
+              <p className="text-muted-foreground">매칭 가능한 게임</p>
             </CardContent>
           </Card>
           <Card className="bg-card border-border text-center hover:shadow-glow transition-all">
             <CardContent className="pt-6">
               <Users size={32} className="mx-auto mb-4 text-secondary" />
-              <h3 className="text-2xl font-bold text-foreground">{mockPlayers.length * 1000}+</h3>
-              <p className="text-muted-foreground">활성 플레이어</p>
+              <h3 className="text-2xl font-bold text-foreground">2,500+</h3>
+              <p className="text-muted-foreground">매칭 대기 중인 플레이어</p>
             </CardContent>
           </Card>
           <Card className="bg-card border-border text-center hover:shadow-glow transition-all">
             <CardContent className="pt-6">
               <MessageSquare size={32} className="mx-auto mb-4 text-accent" />
-              <h3 className="text-2xl font-bold text-foreground">{mockChannels.length * 10}</h3>
-              <p className="text-muted-foreground">활성 채널</p>
+              <h3 className="text-2xl font-bold text-foreground">1,200+</h3>
+              <p className="text-muted-foreground">오늘 성사된 매칭</p>
             </CardContent>
           </Card>
         </div>
@@ -186,7 +230,7 @@ const Index = () => {
               인기 게임
             </TabsTrigger>
             <TabsTrigger value="players" className="data-[state=active]:bg-gradient-accent">
-              활성 플레이어
+              매칭 대기 중
             </TabsTrigger>
             <TabsTrigger value="channels" className="data-[state=active]:bg-gradient-cyber">
               게임 채널
@@ -206,7 +250,13 @@ const Index = () => {
 
           <TabsContent value="players" className="mt-8">
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">활성 플레이어</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-foreground">매칭을 원하는 플레이어</h2>
+                <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+                  필터 설정
+                </Button>
+              </div>
+              <p className="text-muted-foreground">지금 게임을 함께할 플레이어들을 찾아보세요</p>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {mockPlayers.map((player) => (
                   <PlayerProfile key={player.id} player={player} />
