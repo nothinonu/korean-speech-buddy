@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Camera, Save, Link, Gamepad2, Shield, Settings, Crown, Download } from "lucide-react";
+import { User, Camera, Save, Link, Gamepad2, Shield, Settings, Crown, Download, HelpCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +43,9 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isSyncingSteam, setIsSyncingSteam] = useState(false);
+  const [showSteamHelp, setShowSteamHelp] = useState(false);
+  const [steamInput, setSteamInput] = useState('');
+  const [steamInputType, setSteamInputType] = useState<'id' | 'url'>('id');
   const [formData, setFormData] = useState({
     username: "",
     display_name: "",
@@ -151,8 +155,66 @@ const Profile = () => {
     });
   };
 
-  const syncSteamProfile = async () => {
-    if (!formData.steam_id.trim()) {
+  const extractSteamIdFromUrl = (url: string): string | null => {
+    // Steam profile URL patterns
+    const patterns = [
+      /steamcommunity\.com\/id\/([^\/]+)/,
+      /steamcommunity\.com\/profiles\/(\d+)/
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) {
+        return match[1];
+      }
+    }
+    return null;
+  };
+
+  const handleSteamOpenId = () => {
+    toast({
+      title: "Steam OpenID 로그인",
+      description: "이 기능은 곧 추가될 예정입니다.",
+    });
+  };
+
+  const handleSteamInput = () => {
+    let steamId = steamInput.trim();
+    
+    if (steamInputType === 'url') {
+      const extractedId = extractSteamIdFromUrl(steamId);
+      if (!extractedId) {
+        toast({
+          title: "올바르지 않은 URL",
+          description: "Steam 프로필 URL 형식이 올바르지 않습니다.",
+          variant: "destructive"
+        });
+        return;
+      }
+      steamId = extractedId;
+    }
+
+    if (!steamId) {
+      toast({
+        title: "Steam 정보가 필요합니다",
+        description: "Steam ID 또는 프로필 URL을 입력해주세요.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // formData에 steam_id 설정
+    setFormData({ ...formData, steam_id: steamId });
+    setSteamInput('');
+    
+    // 자동으로 동기화 실행
+    syncSteamProfile(steamId);
+  };
+
+  const syncSteamProfile = async (steamId?: string) => {
+    const idToUse = steamId || formData.steam_id.trim();
+    
+    if (!idToUse) {
       toast({
         title: "스팀 ID가 필요합니다",
         description: "먼저 스팀 ID를 입력해주세요.",
@@ -164,7 +226,7 @@ const Profile = () => {
     setIsSyncingSteam(true);
     try {
       const { data, error } = await supabase.functions.invoke('sync-steam-profile', {
-        body: { steamId: formData.steam_id }
+        body: { steamId: idToUse }
       });
 
       if (error) {
@@ -177,7 +239,7 @@ const Profile = () => {
           .from('profiles')
           .update({
             ...data.steamProfile,
-            steam_id: formData.steam_id // 현재 입력된 steam_id도 함께 저장
+            steam_id: idToUse // 현재 입력된 steam_id도 함께 저장
           })
           .eq('id', user?.id);
 
@@ -321,35 +383,122 @@ const Profile = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  {/* Steam OpenID 로그인 */}
                   <div className="space-y-2">
-                    <Label htmlFor="steam_id">Steam ID</Label>
-                    <Input
-                      id="steam_id"
-                      value={formData.steam_id}
-                      onChange={(e) => setFormData({ ...formData, steam_id: e.target.value })}
-                      placeholder="Steam ID를 입력하세요"
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Steam 프로필 URL에서 ID 부분을 입력하세요
+                    <Label>빠른 연동</Label>
+                    <Button 
+                      onClick={handleSteamOpenId}
+                      className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800"
+                    >
+                      <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
+                      </svg>
+                      Steam으로 로그인하여 자동 연동
+                    </Button>
+                    <p className="text-xs text-muted-foreground">
+                      Steam 계정으로 직접 로그인하여 자동으로 정보를 가져옵니다 (추천)
                     </p>
                   </div>
 
-                  {/* 스팀에서 불러오기 버튼 */}
-                  <Button 
-                    onClick={syncSteamProfile}
-                    disabled={isSyncingSteam || !formData.steam_id.trim()}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
-                  >
-                    {isSyncingSteam ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    ) : (
-                      <Download className="mr-2 h-4 w-4" />
-                    )}
-                    {isSyncingSteam ? "동기화 중..." : "스팀에서 불러오기"}
-                  </Button>
-                  <p className="text-xs text-muted-foreground">
-                    스팀 계정 정보(프로필 이미지, 표시명, 레벨, 게임 수)를 자동으로 가져옵니다
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 border-t border-border"></div>
+                    <span className="text-xs text-muted-foreground">또는</span>
+                    <div className="flex-1 border-t border-border"></div>
+                  </div>
+
+                  {/* 수동 입력 */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <Label>수동 입력</Label>
+                      <Collapsible open={showSteamHelp} onOpenChange={setShowSteamHelp}>
+                        <CollapsibleTrigger asChild>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="p-0 h-auto text-xs text-muted-foreground hover:text-primary"
+                          >
+                            <HelpCircle className="mr-1 h-3 w-3" />
+                            어떻게 확인하나요?
+                            {showSteamHelp ? <ChevronUp className="ml-1 h-3 w-3" /> : <ChevronDown className="ml-1 h-3 w-3" />}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="mt-2">
+                          <div className="p-3 bg-muted rounded-lg text-sm space-y-2">
+                            <p className="font-medium">Steam ID 찾는 방법:</p>
+                            <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
+                              <li>Steam 클라이언트 실행 → 프로필 보기</li>
+                              <li>웹브라우저에서 Steam 프로필 페이지 접속</li>
+                              <li>URL에서 ID 부분 복사</li>
+                            </ol>
+                            <p className="font-medium mt-3">예시:</p>
+                            <div className="bg-background p-2 rounded text-xs font-mono">
+                              <p>• ID 형태: steamcommunity.com/id/<span className="text-primary">사용자명</span></p>
+                              <p>• 숫자 형태: steamcommunity.com/profiles/<span className="text-primary">76561198...</span></p>
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Select value={steamInputType} onValueChange={(value: 'id' | 'url') => setSteamInputType(value)}>
+                        <SelectTrigger className="w-32">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="id">Steam ID</SelectItem>
+                          <SelectItem value="url">프로필 URL</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Input
+                        value={steamInput}
+                        onChange={(e) => setSteamInput(e.target.value)}
+                        placeholder={
+                          steamInputType === 'id' 
+                            ? "Steam ID 또는 사용자명" 
+                            : "Steam 프로필 전체 URL"
+                        }
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={handleSteamInput}
+                        disabled={isSyncingSteam || !steamInput.trim()}
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800"
+                      >
+                        {isSyncingSteam ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* 현재 연동된 Steam ID */}
+                  {formData.steam_id && (
+                    <div className="space-y-2">
+                      <Label>현재 연동된 Steam ID</Label>
+                      <div className="flex items-center gap-2">
+                        <Input
+                          value={formData.steam_id}
+                          onChange={(e) => setFormData({ ...formData, steam_id: e.target.value })}
+                          placeholder="Steam ID"
+                        />
+                        <Button 
+                          onClick={() => syncSteamProfile()}
+                          disabled={isSyncingSteam || !formData.steam_id.trim()}
+                          size="sm"
+                          variant="outline"
+                        >
+                          {isSyncingSteam ? (
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                          ) : (
+                            <Download className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
 
                   {profile?.steam_profile_url && (
                     <div className="p-4 bg-muted rounded-lg">
