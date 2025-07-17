@@ -190,47 +190,44 @@ const Games = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
+    if (!user || !profile) {
       toast({
-        title: "로그인이 필요합니다",
-        description: "게임을 추가하려면 로그인해주세요.",
+        title: "인증이 필요합니다",
+        description: "로그인하고 프로필을 설정해주세요.",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      // 태그 배열 변환
-      const tagsArray = gameForm.tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
-      
-      const { data, error } = await supabase
-        .from('games')
-        .insert([
-          {
-            name: gameForm.name,
-            description: gameForm.description || null,
-            image_url: gameForm.imageUrl || null,
-            steam_app_id: gameForm.steamAppId ? parseInt(gameForm.steamAppId) : null,
-            player_count: gameForm.playerCount,
-            is_cooperative: gameForm.isCooperative,
-            tags: tagsArray,
-            created_by: user.id
-          }
-        ]);
+      // 관리자에게 게임 추가 요청 전송
+      const { error: requestError } = await supabase.functions.invoke('game-request-notification', {
+        body: {
+          name: gameForm.name,
+          description: gameForm.description,
+          imageUrl: gameForm.imageUrl,
+          playerCount: gameForm.playerCount,
+          isCooperative: gameForm.isCooperative,
+          tags: gameForm.tags,
+          steamAppId: gameForm.steamAppId,
+          userEmail: user.email,
+          userName: profile.username
+        }
+      });
 
-      if (error) {
-        console.error('게임 추가 오류:', error);
+      if (requestError) {
+        console.error('게임 추가 요청 오류:', requestError);
         toast({
-          title: "게임 추가 실패",
-          description: "게임을 추가하는데 실패했습니다. 다시 시도해주세요.",
+          title: "요청 전송 실패",
+          description: "게임 추가 요청을 전송하는데 실패했습니다. 다시 시도해주세요.",
           variant: "destructive",
         });
         return;
       }
 
       toast({
-        title: "게임이 추가되었습니다",
-        description: `${gameForm.name}이(가) 성공적으로 추가되었습니다.`,
+        title: "게임 추가 요청이 전송되었습니다",
+        description: `${gameForm.name} 게임 추가 요청이 관리자에게 전달되었습니다.`,
       });
       
       // 게임 목록 새로고침
@@ -483,7 +480,7 @@ const Games = () => {
             </Button>
             <Button onClick={addCustomGame}>
               <Plus className="mr-2" size={16} />
-              게임 추가
+              게임 추가 요청
             </Button>
           </div>
         </div>
