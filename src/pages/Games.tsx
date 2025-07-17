@@ -32,8 +32,8 @@ const Games = () => {
   const fetchGames = async () => {
     try {
       setLoading(true);
-      // Fetch Steam cooperative games
-      const response = await fetch('/api/steam-games');
+      // Fetch Steam games
+      const response = await fetch('https://ehcuwjyvfxprnxdviflo.supabase.co/functions/v1/steam-games');
       if (response.ok) {
         const steamGames = await response.json();
         setGames(steamGames);

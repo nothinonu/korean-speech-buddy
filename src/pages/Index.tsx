@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,23 @@ import heroImage from "@/assets/gaming-hero.jpg";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [gameCount, setGameCount] = useState(150);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchGameCount = async () => {
+      try {
+        const response = await fetch('https://ehcuwjyvfxprnxdviflo.supabase.co/functions/v1/steam-games');
+        if (response.ok) {
+          const games = await response.json();
+          setGameCount(games.length);
+        }
+      } catch (error) {
+        console.log('게임 수를 불러오지 못했습니다:', error);
+      }
+    };
+    fetchGameCount();
+  }, []);
 
   // Mock data for demonstration
   const mockGames = [
@@ -212,7 +228,7 @@ const Index = () => {
           >
             <CardContent className="pt-6">
               <Gamepad2 size={32} className="mx-auto mb-4 text-primary" />
-              <h3 className="text-2xl font-bold text-foreground">150+</h3>
+              <h3 className="text-2xl font-bold text-foreground">{gameCount}+</h3>
               <p className="text-muted-foreground">매칭 가능한 게임</p>
             </CardContent>
           </Card>
