@@ -5,26 +5,23 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AuthForm } from "./AuthForm";
 import { LogIn, User, Settings, Crown, LogOut, Bell } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
-interface User {
-  id: string;
-  username: string;
-  email: string;
-  avatar?: string;
-  isPremium: boolean;
-}
-
-interface HeaderProps {
-  user?: User | null;
-  onLogout?: () => void;
-}
-
-export const Header = ({ user, onLogout }: HeaderProps) => {
+export const Header = () => {
+  const { user, signOut, loading } = useAuth();
   const [showAuthForm, setShowAuthForm] = useState(false);
 
   const handleLogout = () => {
-    onLogout?.();
+    signOut();
   };
+
+  const displayUser = user ? {
+    id: user.id,
+    username: user.user_metadata?.username || user.email?.split('@')[0] || "게이머",
+    email: user.email || "",
+    avatar: undefined,
+    isPremium: false // TODO: 실제 구독 상태로 교체
+  } : null;
 
   return (
     <>
@@ -56,7 +53,7 @@ export const Header = ({ user, onLogout }: HeaderProps) => {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            {user ? (
+            {displayUser ? (
               <>
                 {/* Notifications */}
                 <Button variant="ghost" size="sm" className="relative">
@@ -74,12 +71,12 @@ export const Header = ({ user, onLogout }: HeaderProps) => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                       <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar || "/placeholder.svg"} alt={user.username} />
+                        <AvatarImage src={displayUser.avatar || "/placeholder.svg"} alt={displayUser.username} />
                         <AvatarFallback className="bg-gradient-primary text-primary-foreground">
-                          {user.username.charAt(0).toUpperCase()}
+                          {displayUser.username.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      {user.isPremium && (
+                      {displayUser.isPremium && (
                         <Crown 
                           size={12} 
                           className="absolute -top-1 -right-1 text-yellow-500 fill-yellow-500" 
@@ -91,15 +88,15 @@ export const Header = ({ user, onLogout }: HeaderProps) => {
                     <div className="flex items-center justify-start gap-2 p-2">
                       <div className="flex flex-col space-y-1 leading-none">
                         <div className="flex items-center gap-2">
-                          <p className="font-medium text-foreground">{user.username}</p>
-                          {user.isPremium && (
+                          <p className="font-medium text-foreground">{displayUser.username}</p>
+                          {displayUser.isPremium && (
                             <Badge variant="secondary" className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-yellow-900 text-xs">
                               <Crown size={10} className="mr-1" />
                               프리미엄
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground">{user.email}</p>
+                        <p className="text-xs text-muted-foreground">{displayUser.email}</p>
                       </div>
                     </div>
                     <DropdownMenuSeparator />
@@ -111,7 +108,7 @@ export const Header = ({ user, onLogout }: HeaderProps) => {
                       <Settings className="mr-2 h-4 w-4" />
                       설정
                     </DropdownMenuItem>
-                    {!user.isPremium && (
+                    {!displayUser.isPremium && (
                       <DropdownMenuItem className="cursor-pointer bg-gradient-accent/10 text-accent-foreground">
                         <Crown className="mr-2 h-4 w-4" />
                         프리미엄 구독

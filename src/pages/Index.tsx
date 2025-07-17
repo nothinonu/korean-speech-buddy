@@ -8,18 +8,13 @@ import { PlayerProfile } from "@/components/PlayerProfile";
 import { GameChannels } from "@/components/GameChannels";
 import { AdBanner } from "@/components/AdBanner";
 import { Header } from "@/components/Header";
+import { AuthProvider } from "@/hooks/useAuth";
+import { Toaster } from "@/components/ui/toaster";
 import { Search, Gamepad2, Users, MessageSquare } from "lucide-react";
 import heroImage from "@/assets/gaming-hero.jpg";
 
 const Index = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // Mock user state - TODO: Replace with real Supabase auth
-  const [user, setUser] = useState<any>(null);
-  
-  const handleLogout = () => {
-    setUser(null);
-  };
 
   // Mock data for demonstration
   const mockGames = [
@@ -108,9 +103,10 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background relative">
-      {/* Header */}
-      <Header user={user} onLogout={handleLogout} />
+    <AuthProvider>
+      <div className="min-h-screen bg-background relative">
+        {/* Header */}
+        <Header />
       {/* Left Ad Banner */}
       <div className="hidden xl:block">
         <div className="left-0">
@@ -126,7 +122,7 @@ const Index = () => {
       </div>
 
       {/* Main Content */}
-      <div className="xl:mx-64"> {/* 양쪽 광고 공간만큼 마진 */}
+        <div className="xl:mx-64"> {/* 양쪽 광고 공간만큼 마진 */}
       {/* Hero Section */}
       <div 
         className="relative h-96 bg-cover bg-center flex items-center justify-center"
@@ -223,9 +219,11 @@ const Index = () => {
             <GameChannels channels={mockChannels} />
           </TabsContent>
         </Tabs>
+        </div>
+        </div>
       </div>
-      </div>
-    </div>
+      <Toaster />
+    </AuthProvider>
   );
 };
 

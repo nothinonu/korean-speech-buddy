@@ -5,12 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, User, Eye, EyeOff } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AuthFormProps {
   onClose: () => void;
 }
 
 export const AuthForm = ({ onClose }: AuthFormProps) => {
+  const { signIn, signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginForm, setLoginForm] = useState({
@@ -28,14 +30,12 @@ export const AuthForm = ({ onClose }: AuthFormProps) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // TODO: Supabase 로그인 로직
-    console.log("로그인:", loginForm);
+    const success = await signIn(loginForm.email, loginForm.password);
     
-    // 임시 지연
-    setTimeout(() => {
-      setIsLoading(false);
+    setIsLoading(false);
+    if (success) {
       onClose();
-    }, 1000);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -48,14 +48,12 @@ export const AuthForm = ({ onClose }: AuthFormProps) => {
     
     setIsLoading(true);
     
-    // TODO: Supabase 회원가입 로직
-    console.log("회원가입:", signupForm);
+    const success = await signUp(signupForm.email, signupForm.password, signupForm.username);
     
-    // 임시 지연
-    setTimeout(() => {
-      setIsLoading(false);
+    setIsLoading(false);
+    if (success) {
       onClose();
-    }, 1000);
+    }
   };
 
   return (
