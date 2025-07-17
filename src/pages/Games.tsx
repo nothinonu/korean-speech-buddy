@@ -54,7 +54,6 @@ const Games = () => {
 
   useEffect(() => {
     fetchGames();
-    loadCooperativeGames();
   }, []);
 
   useEffect(() => {
@@ -315,10 +314,15 @@ const Games = () => {
               협동 게임을 찾아보고 새로운 게임을 추가해보세요
             </p>
           </div>
-          <Button onClick={addCustomGame} className="mt-4 md:mt-0">
-            <Plus className="mr-2" size={16} />
-            게임 추가
-          </Button>
+          <div className="flex gap-2 mt-4 md:mt-0">
+            <Button onClick={loadCooperativeGames} variant="outline">
+              스팀 협동게임 불러오기
+            </Button>
+            <Button onClick={addCustomGame}>
+              <Plus className="mr-2" size={16} />
+              게임 추가
+            </Button>
+          </div>
         </div>
 
         {/* Search */}
