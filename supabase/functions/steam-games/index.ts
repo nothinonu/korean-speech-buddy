@@ -78,7 +78,7 @@ serve(async (req) => {
     const games = []
     
     // Fetch details for each game
-    for (const appId of popularGameIds.slice(0, 20)) { // Limit to 20 games
+    for (const appId of popularGameIds) { // Get all games in the list
       try {
         const detailsResponse = await fetch(
           `https://store.steampowered.com/api/appdetails?appids=${appId}&l=korean`
